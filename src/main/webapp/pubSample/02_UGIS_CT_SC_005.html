@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="ko" data-dark="false">
+<head>
+<meta charset="utf-8">
+<title></title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=1190">
+<meta name="apple-mobile-web-app-title" content=""/>
+<meta name="robots" content="index,nofollow"/>
+<meta name="description" content=""/>
+<meta property="og:title" content="">
+<meta property="og:url" content="">
+<meta property="og:image" content="">
+<meta property="og:description" content=""/>
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="">
+<meta name="twitter:url" content="">
+<meta name="twitter:image" content="">
+<meta name="twitter:description" content=""/> 
+</head>
+
+<!-- ========== Css Files ========== -->
+<link href="css/root.css" rel="stylesheet">
+
+<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+<script type="text/javascript">
+$(document).ready(function() {
+	
+$("ul#topnav li").hover(function() { //Hover over event on list item
+	$(this).css({ 'background' : '#1376c9 url(topnav_active.gif) repeat-x'}); //Add background color + image on hovered list item
+	$(this).find("span").show(); //Show the subnav
+} , function() { //on hover out...
+	$(this).css({ 'background' : 'none'}); //Ditch the background
+	$(this).find("span").hide(); //Hide the subnav
+});
+	
+});
+</script>
+</head>
+
+<body>
+
+<!-- START TOP -->
+<div id="top" class="clearfix">
+
+	<div class="applogo">
+		<a href="" class="logo"><img src="img/main_logo.png"></a>
+	</div>
+	<div class="mn-dep01-wrap">
+		<button class="w3-bar-item w3-button tablink w3-red" onclick="openCity(event,'monitoring')">재난 모니터링</button>
+		<button class="w3-bar-item w3-button tablink" onclick="openCity(event,'db')">영상DB 수집</button>
+		<button class="w3-bar-item w3-button tablink" onclick="openCity(event,'fusion')">공간정보 융·복합</button>
+		<button class="w3-bar-item w3-button tablink" onclick="openCity(event,'hadoop')">Hadoop 관리</button>
+		<button class="w3-bar-item w3-button tablink" onclick="location.href='04_UGIS_CM_SC_003.html'">긴급공간정보 생성</button>
+	</div>
+  
+	<div id="monitoring" class="w3-container w3-border city" style="display:none">
+		<ul class="mn-dep02-wrap">
+			<li><a href="01_UGIS_MN_SC_001.html" class="dep-02">모니터링</a></li>
+			<li><a href="01_UGIS_MN_SC_002.html" class="dep-02">수집 설정</a></li>
+			<li><a href="01_UGIS_MN_SC_003~004.html" class="dep-02">재난정보 조회</a></li>
+		</ul>
+	</div>
+
+	<div id="db" class="w3-container w3-border city">
+		<ul class="mn-dep02-wrap">
+			<li><a href="02_UGIS_CT_SC_001~003.html" class="dep-02">영상조회 및 저장</a></li>
+			<li><a href="02_UGIS_CT_SC_004.html" class="dep-02">이력관리</a></li>
+			<li><a href="02_UGIS_CT_SC_005.html" class="dep-02 active">통계분석</a></li>
+		</ul>
+	</div>
+
+	<div id="fusion" class="w3-container w3-border city" style="display:none">
+		<ul class="mn-dep02-wrap">
+			<li><a href="03_UGIS_CI_SC_001~003.html" class="dep-02">프로젝트 관리</a></li>
+			<li><a href="03_UGIS_CI_SC_004.html" class="dep-02">대기보정</a></li>
+			<li><a href="03_UGIS_CI_SC_005~006.html" class="dep-02">방사보정</a></li>
+			<li><a href="03_UGIS_CI_SC_007~009.html" class="dep-02">영상처리</a></li>
+			<li><a href="03_UGIS_CI_SC_010~014.html" class="dep-02">AI 학습</a></li>
+			<li><a href="03_UGIS_CI_SC_015~16.html" class="dep-02">객체추출</a></li>
+			<li><a href="03_UGIS_CI_SC_017~018.html" class="dep-02">변화탐지</a></li>
+			<li><a href="03_UGIS_CM_SC_002.html" class="dep-02">국토위성영상 시뮬레이터</a></li>
+		</ul>
+	</div>
+
+	<div id="hadoop" class="w3-container w3-border city" style="display:none">
+		<ul class="mn-dep02-wrap">
+			<li><a href="04_UGIS_CI_SC_019.html" class="dep-02">워크플로우 관리</a></li>
+			<li><a href="04_UGIS_CI_SC_020.html" class="dep-02">스케줄 및 장비 모니터링</a></li>
+			<li><a href="04_UGIS_CI_SC_022.html" class="dep-02">SQL 관리 및 검색</a></li>
+			<li><a href="04_UGIS_CI_SC_023.html" class="dep-02 active">HDFS 브라우즈 관리</a></li>
+		</ul>
+	</div>
+
+	<div id="add" class="w3-container w3-border city" style="display:none">
+		<ul class="mn-dep02-wrap">
+			<li><a href="" class="dep-02"></a></li>
+		</ul>
+	</div>
+
+	<script>
+	function openCity(evt, cityName) {
+	  var i, x, tablinks;
+	  x = document.getElementsByClassName("city");
+	  for (i = 0; i < x.length; i++) {
+		x[i].style.display = "none";
+	  }
+	  tablinks = document.getElementsByClassName("tablink");
+	  for (i = 0; i < x.length; i++) {
+		tablinks[i].className = tablinks[i].className.replace(" w3-red", "");
+	  }
+	  document.getElementById(cityName).style.display = "block";
+	  evt.currentTarget.className += " w3-red";
+	}
+	</script>
+	<ul class="top-right">
+		<li class="link">
+			<a href="#">관리자님 반갑습니다.</a>
+		</li>
+		<li class="link">
+			<a href="#">도움말</a>
+		</li>
+		<li class="link">
+			<a href="#">로그아웃</a>
+		</li>
+	</ul>
+</div>
+<!-- END TOP -->
+
+<!-- //////////////////////////////////////////////////////////////////////////// --> 
+<!-- START SIDEBAR -->
+<div class="sidebar clearfix">
+	<div role="tabpanel" class="sidepanel" style="display: block;">
+
+		<!-- Tab panes -->
+		<div class="tab-content">
+			<div role="tabpanel" class="tab-pane active" id="today">
+
+				<div class="sidepanel-m-title">
+				대상영상 검색
+				</div>
+				<div class="panel-body">
+					<div class="form-group m-t-10">
+						<label for="input002" class="col-sm-12 control-label form-label">키워드</label>
+						<div class="col-sm-12">
+							<div class="col-sm-4">
+								<label class="ckbox-container">긴급영상
+									<input type="checkbox" checked="checked">
+									<span class="checkmark"></span>
+								</label>
+							</div>
+							<div class="col-sm-4">
+								<label class="ckbox-container">국토위성
+									<input type="checkbox">
+									<span class="checkmark"></span>
+								</label>
+							</div>
+							<div class="col-sm-4">
+								<label class="ckbox-container">무료위성
+									<input type="checkbox">
+									<span class="checkmark"></span>
+								</label>
+							</div>
+						</div>
+					</div>			
+					<form class="">
+					<div class="form-group m-t-10">
+						<label for="input002" class="col-sm-12 control-label form-label">조회기간</label>
+						<div class="col-sm-12">
+							<div class="col-sm-4">
+								<input type="text" class="form-control" id="input002">
+							</div>
+							<div class="col-sm-2">
+								<button type="button" class="btn btn-default btn-icon"><i class="fas fa-calendar-alt"></i></button>
+							</div>
+							<div class="col-sm-4">
+								<input type="text" class="form-control" id="input002">
+							</div>
+							<div class="col-sm-2">
+								<button type="button" class="btn btn-default btn-icon"><i class="fas fa-calendar-alt"></i></button>
+							</div>
+						</div>
+					</div>
+					</form> 	
+					<form class="">
+					<div class="form-group m-t-10">
+						<label class="col-sm-12 control-label form-label">위치</label>
+						<div class="col-sm-6">
+							<select class="form-basic">
+								<option>광역시도</option>
+							</select>
+						</div>
+						<div class="col-sm-6">
+							<select class="form-basic">
+								<option>시군구</option>
+							</select>
+						</div>
+					</div>
+					</form> 
+					<div class="btn-wrap a-cent">
+						<a href="#" class="btn btn-default"><i class="fas fa-search m-r-5"></i>검색</a>
+					</div>
+
+				</div>
+			</div>
+
+			<div role="tabpanel" class="tab-pane" id="tasks">
+			</div>
+		</div>
+    <!-- End Tasks -->
+    </div>
+    <!-- End Chat -->
+
+  </div>
+
+</div>
+
+    <a href="#" class="sidebar-open-button"><i class="fa fa-bars"></i></a>
+    <a href="#" class="sidebar-open-button-mobile"><i class="fa fa-bars"></i></a>
+
+</div>
+
+<!-- START CONTENT -->
+<div class="content">
+
+	<div class="page-header">
+		<h1 class="title">활용내역 통계</h1>
+
+	</div>
+	<div class="container-widget">
+		<!-- 연합뉴스 -->
+		<div class="col-lg-12">
+			<div class="panel panel-default">
+				<div class="panel-title">
+					<i class="fas fa-chart-line"></i>연도별 통계
+				</div>
+				<div class="panel-body">		
+		
+					<!-- amCharts javascript sources -->
+					<script type="text/javascript" src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+					<script type="text/javascript" src="https://www.amcharts.com/lib/3/serial.js"></script>
+					
+
+					<!-- amCharts javascript code -->
+					<script type="text/javascript">
+						AmCharts.makeChart("chartdiv",
+							{
+								"type": "serial",
+								"categoryField": "category",
+								"startDuration": 1,
+								"categoryAxis": {
+									"gridPosition": "start"
+								},
+								"trendLines": [],
+								"graphs": [
+									{
+										"balloonText": "[[title]] of [[category]]:[[value]]",
+										"bullet": "round",
+										"id": "AmGraph-1",
+										"title": "graph 1",
+										"valueField": "column-1"
+									},
+									{
+										"balloonText": "[[title]] of [[category]]:[[value]]",
+										"bullet": "square",
+										"id": "AmGraph-2",
+										"title": "graph 2",
+										"valueField": "column-2"
+									}
+								],
+								"guides": [],
+								"valueAxes": [
+									{
+										"id": "ValueAxis-1",
+										"title": "Axis title"
+									}
+								],
+								"allLabels": [],
+								"balloon": {},
+								"legend": {
+									"enabled": true,
+									"useGraphSettings": true
+								},
+								"titles": [
+									{
+										"id": "Title-1",
+										"size": 15,
+										"text": "Chart Title"
+									}
+								],
+								"dataProvider": [
+									{
+										"category": "2017",
+										"column-1": "25"
+									},
+									{
+										"category": "2018",
+										"column-1": "100"
+									},
+									{
+										"category": "2019",
+										"column-1": "150"
+									},
+									{
+										"category": "2020",
+										"column-1": "200"
+									},
+									{
+										"category": "2021",
+										"column-1": "180"
+									}
+								]
+							}
+						);
+					</script>
+					<div id="chartdiv" style="width: 100%; height: 400px; background-color: #FFFFFF;" ></div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-title">
+					<i class="fas fa-chart-pie"></i>지역별 통계
+				</div>
+				<div class="panel-body">
+
+					<!-- amCharts javascript sources -->
+					<script type="text/javascript" src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+					<script type="text/javascript" src="https://www.amcharts.com/lib/3/pie.js"></script>
+					<script type="text/javascript" src="https://www.amcharts.com/lib/3/themes/chalk.js"></script>
+					
+
+					<!-- amCharts javascript code -->
+					<script type="text/javascript">
+						AmCharts.makeChart("chartdiv2",
+							{
+								"type": "serial",
+								"categoryField": "category",
+								"startDuration": 1,
+								"categoryAxis": {
+									"gridPosition": "start"
+								},
+								"trendLines": [],
+								"graphs": [
+									{
+										"balloonText": "[[title]] of [[category]]:[[value]]",
+										"fillAlphas": 1,
+										"id": "AmGraph-1",
+										"title": "graph 1",
+										"type": "column",
+										"valueField": "column-1"
+									},
+									{
+										"balloonText": "[[title]] of [[category]]:[[value]]",
+										"fillAlphas": 1,
+										"id": "AmGraph-2",
+										"title": "graph 2",
+										"type": "column",
+										"valueField": "column-2"
+									}
+								],
+								"guides": [],
+								"valueAxes": [
+									{
+										"id": "ValueAxis-1",
+										"title": "Axis title"
+									}
+								],
+								"allLabels": [],
+								"balloon": {},
+								"legend": {
+									"enabled": true,
+									"useGraphSettings": true
+								},
+								"titles": [
+									{
+										"id": "Title-1",
+										"size": 15,
+										"text": "Chart Title"
+									}
+								],
+								"dataProvider": [
+									{
+										"category": "서울시",
+										"column-1": 8,
+										"column-2": 5,
+										"column-3": 7
+									},
+									{
+										"category": "대구시",
+										"column-1": 6,
+										"column-2": 7,
+										"column-3": 7
+									},
+									{
+										"category": "대전시",
+										"column-1": 2,
+										"column-2": 3,
+										"column-3": 1
+									},
+									{
+										"category": "부산시",
+										"column-1": "3",
+										"column-2": "5",
+										"column-3": 7
+									},
+									{
+										"category": "인천시",
+										"column-1": "5",
+										"column-2": "9",
+										"column-3": 10
+									},
+									{
+										"category": "광주시",
+										"column-1": "2",
+										"column-2": "1",
+										"column-3": "2"
+									},
+									{
+										"category": "울산시",
+										"column-1": "3",
+										"column-2": "8",
+										"column-3": "8"
+									}
+								]
+							}
+						);
+					</script>
+					<div id="chartdiv2" style="width: 100%; height: 400px; background-color: #FFFFFF;" ></div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-6">
+			<div class="panel panel-default">
+				<div class="panel-title">
+					<i class="fas fa-globe-asia"></i>영상 종류별 통계
+				</div>
+				<div class="panel-body">
+
+
+					<!-- amCharts javascript sources -->
+					<script type="text/javascript" src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+					<script type="text/javascript" src="https://www.amcharts.com/lib/3/pie.js"></script>
+					<script type="text/javascript" src="https://www.amcharts.com/lib/3/themes/chalk.js"></script>
+					
+
+					<!-- amCharts javascript code -->
+					<script type="text/javascript">
+						AmCharts.makeChart("chartdiv3",
+							{
+								"type": "pie",
+								"balloonText": "[[title]]<br><span style='font-size:14px'><b>[[value]]</b> ([[percents]]%)</span>",
+								"colors": [
+									"#226FCB",
+									"#B2FE96",
+									"#00B4FF",
+									"#F57806",
+									"#D1F0FF",
+									"#00CCCC"
+								],
+								"labelColorField": "#FFFFFF",
+								"outlineAlpha": 0,
+								"outlineThickness": 0,
+								"titleField": "country",
+								"valueField": "litres",
+								"color": "#666666",
+								"fontFamily": "",
+								"fontSize": 12,
+								"handDrawn": false,
+								"handDrawScatter": 1,
+								"theme": "chalk",
+								"allLabels": [],
+								"balloon": {},
+								"titles": [],
+								"dataProvider": [
+									{
+										"country": "화재",
+										"litres": "356.9"
+									},
+									{
+										"country": "붕괴사고",
+										"litres": 131.1
+									},
+									{
+										"country": "폭발사고",
+										"litres": 115.8
+									},
+									{
+										"country": "도로교통사고",
+										"litres": 109.9
+									},
+									{
+										"country": "환경오염사고",
+										"litres": 108.3
+									},
+									{
+										"country": "해양사고",
+										"litres": 65
+									}
+								]
+							}
+						);
+					</script>
+					<div id="chartdiv3" style="width: 100%; height: 400px; background-color: #fff;" ></div>
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<!-- ================================================
+jQuery Library
+================================================ -->
+<script src="js/jquery.min.js"></script>
+
+<!-- ================================================
+Bootstrap Core JavaScript File
+================================================ -->
+<script src="js/bootstrap/bootstrap.min.js"></script>
+
+<!-- ================================================
+Plugin.js - Some Specific JS codes for Plugin Settings
+================================================ -->
+<script src="js/plugins.js"></script>
+
+<!-- ================================================
+Bootstrap Select
+================================================ -->
+<script src="js/bootstrap-select/bootstrap-select.js"></script>
+
+<!-- ================================================
+Bootstrap Toggle
+================================================ -->
+<script src="js/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+
+<!-- ================================================
+Bootstrap WYSIHTML5
+================================================ -->
+<!-- main file -->
+<script src="js/bootstrap-wysihtml5/wysihtml5-0.3.0.min.js"></script>
+<!-- bootstrap file -->
+<script src="js/bootstrap-wysihtml5/bootstrap-wysihtml5.js"></script>
+
+<!-- ================================================
+Summernote
+================================================ -->
+<script src="js/summernote/summernote.min.js"></script>
+
+<!-- ================================================
+Flot Chart
+================================================ -->
+<!-- main file -->
+<script src="js/flot-chart/flot-chart.js"></script>
+<!-- time.js -->
+<script src="js/flot-chart/flot-chart-time.js"></script>
+<!-- stack.js -->
+<script src="js/flot-chart/flot-chart-stack.js"></script>
+<!-- pie.js -->
+<script src="js/flot-chart/flot-chart-pie.js"></script>
+<!-- demo codes -->
+<script src="js/flot-chart/flot-chart-plugin.js"></script>
+
+<!-- ================================================
+Chartist
+================================================ -->
+<!-- main file -->
+<script src="js/chartist/chartist.js"></script>
+<!-- demo codes -->
+<script src="js/chartist/chartist-plugin.js"></script>
+
+<!-- ================================================
+Easy Pie Chart
+================================================ -->
+<!-- main file -->
+<script src="js/easypiechart/easypiechart.js"></script>
+<!-- demo codes -->
+<script src="js/easypiechart/easypiechart-plugin.js"></script>
+
+<!-- ================================================
+Rickshaw
+================================================ -->
+<!-- d3 -->
+<script src="js/rickshaw/d3.v3.js"></script>
+<!-- main file -->
+<script src="js/rickshaw/rickshaw.js"></script>
+<!-- demo codes -->
+<script src="js/rickshaw/rickshaw-plugin.js"></script>
+
+<!-- ================================================
+Data Tables
+================================================ -->
+<script src="js/datatables/datatables.min.js"></script>
+
+<!-- ================================================
+Sweet Alert
+================================================ -->
+<script src="js/sweet-alert/sweet-alert.min.js"></script>
+
+<!-- ================================================
+Kode Alert
+================================================ -->
+<script src="js/kode-alert/main.js"></script>
+
+<!-- ================================================
+jQuery UI
+================================================ -->
+<script src="js/jquery-ui/jquery-ui.min.js"></script>
+
+<!-- ================================================
+Moment.js
+================================================ -->
+<script src="js/moment/moment.min.js"></script>
+
+<!-- ================================================
+Full Calendar
+================================================ -->
+<script src="js/full-calendar/fullcalendar.js"></script>
+
+<!-- ================================================
+Bootstrap Date Range Picker
+================================================ -->
+<script src="js/date-range-picker/daterangepicker.js"></script>
+
+<!-- ================================================
+Below codes are only for index widgets
+================================================ -->
+<!-- Today Sales -->
+<script>
+
+// set up our data series with 50 random data points
+
+var seriesData = [ [], [], [] ];
+var random = new Rickshaw.Fixtures.RandomData(20);
+
+for (var i = 0; i < 110; i++) {
+  random.addData(seriesData);
+}
+
+// instantiate our graph!
+
+var graph = new Rickshaw.Graph( {
+  element: document.getElementById("todaysales"),
+  renderer: 'bar',
+  series: [
+    {
+      color: "#33577B",
+      data: seriesData[0],
+      name: 'Photodune'
+    }, {
+      color: "#77BBFF",
+      data: seriesData[1],
+      name: 'Themeforest'
+    }, {
+      color: "#C1E0FF",
+      data: seriesData[2],
+      name: 'Codecanyon'
+    }
+  ]
+} );
+
+graph.render();
+
+var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+  graph: graph,
+  formatter: function(series, x, y) {
+    var date = '<span class="date">' + new Date(x * 1000).toUTCString() + '</span>';
+    var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
+    var content = swatch + series.name + ": " + parseInt(y) + '<br>' + date;
+    return content;
+  }
+} );
+
+</script>
+
+<!-- Today Activity -->
+<script>
+// set up our data series with 50 random data points
+
+var seriesData = [ [], [], [] ];
+var random = new Rickshaw.Fixtures.RandomData(20);
+
+for (var i = 0; i < 50; i++) {
+  random.addData(seriesData);
+}
+
+// instantiate our graph!
+
+var graph = new Rickshaw.Graph( {
+  element: document.getElementById("todayactivity"),
+  renderer: 'area',
+  series: [
+    {
+      color: "#9A80B9",
+      data: seriesData[0],
+      name: 'London'
+    }, {
+      color: "#CDC0DC",
+      data: seriesData[1],
+      name: 'Tokyo'
+    }
+  ]
+} );
+
+graph.render();
+
+var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+  graph: graph,
+  formatter: function(series, x, y) {
+    var date = '<span class="date">' + new Date(x * 1000).toUTCString() + '</span>';
+    var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
+    var content = swatch + series.name + ": " + parseInt(y) + '<br>' + date;
+    return content;
+  }
+} );
+</script>
+
+</body>
+</html>

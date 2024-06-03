@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="ugis.service.othermapper.CMSC003DataSetMapper">
+
+	<insert id="insertDatasetInfo" parameterType="datasetVO">
+		<selectKey keyProperty="datasetId" resultType="integer"
+			order="BEFORE">
+			SELECT COALESCE(MAX("DATASET_ID"), 0) + 1 FROM
+			TN_DATASET_INFO
+		</selectKey>
+		INSERT INTO
+		"TN_DATASET_INFO"
+		(
+		"DATASET_ID",
+		"DATASET_NM",
+		"LTOP_CRDNT_X",
+		"LTOP_CRDNT_Y",
+		"RTOP_CRDNT_X",
+		"RTOP_CRDNT_Y",
+		"LBTM_CRDNT_X",
+		"LBTM_CRDNT_Y",
+		"RBTM_CRDNT_X",
+		"RBTM_CRDNT_Y",
+		"MAP_PRJCTN_CN",
+		"MSFRTN_TY_NM",
+		"DATASET_COURS_NM",
+		"ROI_YN",
+		"UPLOAD_DT",
+		"MSFRTN_ID",
+		"DATA_CD",
+		"ADDR",
+		"FILE_NM",
+		"MSFRTN_TY_CD",
+		"FILE_TY"
+		)
+		VALUES
+		(
+		#{datasetId},
+		#{datasetNm},
+		#{ltopCrdntX},
+		#{ltopCrdntY},
+		#{rtopCrdntX},
+		#{rtopCrdntY},
+		#{lbtmCrdntX},
+		#{lbtmCrdntY},
+		#{rbtmCrdntX},
+		#{rbtmCrdntY},
+		#{mapPrjctnCn},
+		#{msfrtnTyNm},
+		#{datasetCoursNm},
+		#{roiYn},
+		#{uploadDt},
+		#{msfrtnId},
+		#{dataCd},
+		#{addr},
+		#{fileNm},
+		#{msfrtnTyCd},
+		#{fileTy}
+		)
+	</insert>
+
+</mapper>
+
+

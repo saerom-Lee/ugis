@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="ugis.service.mapper.CISC004Mapper">
+
+
+
+	<!-- 기타위성 -->
+    <select id="select" resultType="ugis.service.vo.CISC004VO" parameterType="ugis.service.vo.CISC004VO" >
+    <![CDATA[
+        SELECT * FROM "TN_USGS" WHERE "INNER_FILE_COURS_NM"=#{innerFileCoursNm}
+        ]]>
+    </select>
+
+
+    <insert id="insert" parameterType="ugis.service.vo.CISC004VO">
+    insert into "TN_USGS"
+        ("VIDO_ID",
+    "POTOGRF_BEGIN_DT",
+    "POTOGRF_END_DT",
+    "LTOP_CRDNT_X",
+    "LTOP_CRDNT_Y",
+    "RBTM_CRDNT_X",
+    "RBTM_CRDNT_Y",
+    "INNER_FILE_COURS_NM",
+    "POTOGRF_VIDO_CD",
+         "VIDO_NM"
+    )
+    values (
+    #{vidoId},
+    #{potogrfBeginDt},
+    #{potogrfEndDt},
+    #{ltopCrdntX},
+    #{ltopCrdntY},
+    #{rbtmCrdntX},
+    #{rbtmCrdntY},
+    #{innerFileCoursNm},
+    '7',
+    #{vidoNm}
+    )
+    </insert>
+    
+</mapper>

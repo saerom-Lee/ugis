@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="ugis.service.mapper.CISC015Mapper">
+
+
+	<select id="selectUsgsWorkList"
+		resultType="ugis.service.vo.CISC015VO$ObjChangeListRes"
+		parameterType="ugis.service.vo.CISC015VO$ObjChangeSearch">
+		SELECT A."VIDO_ID"
+		, A."VIDO_NM"
+		, A."INNER_FILE_COURS_NM"
+		,
+		A."POTOGRF_BEGIN_DT"
+		, A."POTOGRF_END_DT"
+		, A."LTOP_CRDNT_X"
+		,
+		A."LTOP_CRDNT_Y"
+		, A."RBTM_CRDNT_X"
+		, A."RBTM_CRDNT_Y"
+		,
+		REVERSE(SPLIT_PART(REVERSE(A."INNER_FILE_COURS_NM"),'\',1)) AS
+		FILE_NM
+		, A."POTOGRF_VIDO_CD"
+		, B."MAP_PRJCTN_CN"
+		FROM "TN_USGS_WORK" A
+		INNER
+		JOIN
+		"TN_USGS_META" B ON (B."VIDO_ID" = A."VIDO_ID")
+		<where>
+			<if test="searchPotogrfBeginDt != null">
+				AND A."POTOGRF_BEGIN_DT" >= #{searchPotogrfBeginDt}
+			</if>
+			<if test="searchPotogrfEndDt != null">
+				AND A."POTOGRF_END_DT" <![CDATA[<=]]>
+				#{searchPotogrfEndDt}
+			</if>
+			<if
+				test="searchPotogrfVidoCd != null and searchPotogrfVidoCd.length > 0">
+				AND A."POTOGRF_VIDO_CD" IN
+				<foreach collection="searchPotogrfVidoCd" item="item"
+					separator="," open="(" close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+		ORDER BY A."USGS_WORK_ID" DESC
+	</select>
+
+
+	<select id="selectSateList"
+		resultType="ugis.service.vo.CISC015VO$ObjChangeListRes"
+		parameterType="ugis.service.vo.CISC015VO$ObjChangeSearch">
+		SELECT A."VIDO_ID"
+		, A."VIDO_NM"
+		, A."INNER_FILE_COURS_NM"
+		,
+		A."POTOGRF_BEGIN_DT"
+		, A."POTOGRF_END_DT"
+		, A."LTOP_CRDNT_X"
+		,
+		A."LTOP_CRDNT_Y"
+		, A."RBTM_CRDNT_X"
+		, A."RBTM_CRDNT_Y"
+		,
+		REVERSE(SPLIT_PART(REVERSE(A."INNER_FILE_COURS_NM"),'\',1)) AS
+		FILE_NM
+		, A."POTOGRF_VIDO_CD"
+		, B."MAP_PRJCTN_CN"
+		FROM "TN_USGS" A
+		INNER JOIN
+		"TN_USGS_META" B ON (B."VIDO_ID" = A."VIDO_ID")
+		<where>
+			<if test="searchPotogrfBeginDt != null">
+				AND A."POTOGRF_BEGIN_DT" >= #{searchPotogrfBeginDt}
+			</if>
+			<if test="searchPotogrfEndDt != null">
+				AND A."POTOGRF_END_DT" <![CDATA[<=]]>
+				#{searchPotogrfEndDt}
+			</if>
+			<if
+				test="searchPotogrfVidoCd != null and searchPotogrfVidoCd.length > 0">
+				AND A."POTOGRF_VIDO_CD" IN
+				<foreach collection="searchPotogrfVidoCd" item="item"
+					separator="," open="(" close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+		ORDER BY A."VIDO_ID" DESC
+	</select>
+
+	<select id="selectAirList" resultType="egovMap"
+		parameterType="ugis.service.vo.CISC015VO$ObjChangeSearch">
+    <![CDATA[
+       	SELECT * FROM "TN_DATASET_INFO" 
+       	WHERE TO_TIMESTAMP("YEAR",'YYYY') >= TO_TIMESTAMP(#{searchPotogrfBeginDt}, 'YYYY') AND TO_TIMESTAMP("YEAR",'YYYY') <= TO_TIMESTAMP(#{searchPotogrfEndDt},'YYYY')
+       	AND "DATA_CD" IN('DSCD300', 'DSCD400') ;
+        ]]>
+	</select>
+
+
+	<select id="selectAiModelAnalsList"
+		resultType="ugis.service.vo.CISC015VO$ObjChangeRsltListRes">
+		SELECT "MODEL_ID"
+		, "AI_MODEL_ID"
+		, "MODEL_ANALS_ID"
+		,
+		"PROGRS_STTUS_CD"
+		, "STRE_YN"
+		FROM "TN_AI_MODEL_ANALS"
+		WHERE
+		"PROGRS_STTUS_CD" = '444'
+	</select>
+
+	<select id="selectAiModelAnalsRsltList"
+		resultType="ugis.service.vo.CISC015VO$ObjChangeRsltListRes">
+		SELECT A."MODEL_ID", A."AI_MODEL_ID", A."MODEL_ANALS_ID",
+		A."PROGRS_STTUS_CD", A."STRE_YN",
+		B."ANALS_VIDO_ID", B."VIDO_ID",
+		B."VIDO_NM",
+		B."INNER_FILE_COURS_NM", B."EXTRL_FILE_COURS_NM",
+		B."FILE_NM", B."ALL_FILE_NM",
+		B."FILE_COURS_NM", B."FILE_SIZE",
+		B."FILE_EXTSN_NM", B."THUMB_VIDO_NM",
+		B."THUMB_VIDO_COURS_NM",B."VECTOR_FILE_NM", B."VECTOR_FILE_COURS_NM",
+		D."LTOP_CRDNT_X",
+		D."LTOP_CRDNT_Y",
+		D."RBTM_CRDNT_X",
+		D."RBTM_CRDNT_Y",
+		C."MAP_PRJCTN_CN" FROM "TN_AI_MODEL_ANALS" A
+		INNER JOIN
+		"TN_AI_MODEL_ANALS_VIDO_MAPNG_RESULT" B
+		ON (B."MODEL_ANALS_ID" =
+		A."MODEL_ANALS_ID")
+		INNER JOIN "TN_USGS_META" C ON (B."VIDO_ID" =
+		C."VIDO_ID")
+		INNER JOIN "TN_USGS" D ON (B."VIDO_ID" = D."VIDO_ID")
+		WHERE A."PROGRS_STTUS_CD" = '444'
+		ORDER BY B."ANALS_VIDO_ID" DESC
+	</select>
+
+	<select id="selectAiModelAnalsRsltWorkList"
+		resultType="ugis.service.vo.CISC015VO$ObjChangeRsltListRes">
+		SELECT A."MODEL_ID", A."AI_MODEL_ID", A."MODEL_ANALS_ID",
+		A."PROGRS_STTUS_CD", A."STRE_YN",
+		B."ANALS_VIDO_ID", B."VIDO_ID",
+		B."VIDO_NM",
+		B."INNER_FILE_COURS_NM", B."EXTRL_FILE_COURS_NM",
+		B."FILE_NM", B."ALL_FILE_NM",
+		B."FILE_COURS_NM", B."FILE_SIZE",
+		B."FILE_EXTSN_NM", B."THUMB_VIDO_NM",
+		B."THUMB_VIDO_COURS_NM",B."VECTOR_FILE_NM", B."VECTOR_FILE_COURS_NM",
+		D."LTOP_CRDNT_X",
+		D."LTOP_CRDNT_Y",
+		D."RBTM_CRDNT_X",
+		D."RBTM_CRDNT_Y",
+		C."MAP_PRJCTN_CN" FROM "TN_AI_MODEL_ANALS" A
+		INNER JOIN
+		"TN_AI_MODEL_ANALS_VIDO_MAPNG_RESULT" B
+		ON (B."MODEL_ANALS_ID" =
+		A."MODEL_ANALS_ID")
+		INNER JOIN "TN_USGS_META" C ON (B."VIDO_ID" =
+		C."VIDO_ID")
+		INNER JOIN "TN_USGS_WORK" D ON (B."VIDO_ID" = D."VIDO_ID")
+		WHERE A."PROGRS_STTUS_CD" = '444'
+		ORDER BY B."ANALS_VIDO_ID" DESC
+	</select>
+
+	<select id="selectAiModelAnalsVectorList"
+		resultType="ugis.service.vo.CISC015VO$ObjChangeRsltListRes">
+		SELECT A."MODEL_ID"
+		, A."AI_MODEL_ID"
+		, A."MODEL_ANALS_ID"
+		,
+		B."ANALS_VIDO_ID"
+		, B."VECTOR_FILE_NM"
+		, B."VECTOR_FILE_COURS_NM"
+		,
+		B."VIDO_ID"
+		FROM "TN_AI_MODEL_ANALS" A
+		INNER JOIN
+		"TN_AI_MODEL_ANALS_VIDO_MAPNG_RESULT" B ON (B."MODEL_ANALS_ID" =
+		A."MODEL_ANALS_ID")
+		WHERE A."PROGRS_STTUS_CD" = '444'
+		AND A."STRE_YN" =
+		'Y'
+		AND B."VECTOR_FILE_NM" IS NOT NULL
+		ORDER BY B."ANALS_VIDO_ID" DESC
+	</select>
+
+	<insert id="saveAiModelAnals"
+		parameterType="ugis.service.vo.CISC015VO$TnAiModelAnals">
+		<selectKey keyProperty="modelAnalsId" resultType="Long"
+			order="BEFORE">
+			SELECT NEXTVAL('"TN_AI_MODEL_ANALS_MODEL_ANALS_ID_seq"') AS
+			modelAnalsId
+		</selectKey>
+		INSERT INTO "TN_AI_MODEL_ANALS"
+		(
+		"MODEL_ID"
+		, "AI_MODEL_ID"
+		,
+		"MODEL_ANALS_ID"
+		, "MODEL_ANALS_NM"
+		, "PROGRS_STTUS_CD"
+		, "STRE_YN"
+		)
+		VALUES
+		(
+		#{modelId}
+		, #{aiModelId}
+		, #{modelAnalsId}
+		, #{modelAnalsNm}
+		,
+		'441'
+		, 'N'
+		)
+	</insert>
+
+	<insert id="saveAiModelAnalsResult"
+		parameterType="ugis.service.vo.CISC015VO$TnAiModelAnalsVidoMapngResult">
+		INSERT INTO "TN_AI_MODEL_ANALS_VIDO_MAPNG_RESULT"
+		(
+		"MODEL_ID"
+		, "AI_MODEL_ID"
+		, "MODEL_ANALS_ID"
+		, "ANALS_VIDO_ID"
+		,
+		"VIDO_ID"
+		, "VIDO_NM"
+		, "INNER_FILE_COURS_NM"
+		, "EXTRL_FILE_COURS_NM"
+		)
+		VALUES
+		(
+		#{modelId}
+		, #{aiModelId}
+		, #{modelAnalsId}
+		, (SELECT
+		NEXTVAL('"TN_AI_MODEL_ANALS_VIDO_MAPNG_RESULT_ANALS_VIDO_ID_seq"'))
+		,
+		#{vidoId}
+		, #{vidoNm}
+		, #{innerFileCoursNm}
+		, #{extrlFileCoursNm}
+		)
+	</insert>
+
+	<update id="updateAiModelAnalsStreYn"
+		parameterType="ugis.service.vo.CISC015VO$TnAiModelAnals">
+		UPDATE "TN_AI_MODEL_ANALS"
+		SET "STRE_YN" = 'Y'
+		WHERE
+		"MODEL_ID" = #{modelId}
+		AND "AI_MODEL_ID" = #{aiModelId}
+		AND
+		"MODEL_ANALS_ID" = #{modelAnalsId}
+	</update>
+
+	<update id="deleteVector"
+		parameterType="ugis.service.vo.CISC015VO$TnAiModelAnalsVidoMapngResult">
+		UPDATE "TN_AI_MODEL_ANALS_VIDO_MAPNG_RESULT"
+		SET
+		"VECTOR_FILE_NM" = NULL
+		, "VECTOR_FILE_COURS_NM" = NULL
+		WHERE "MODEL_ID"
+		= #{modelId}
+		AND "AI_MODEL_ID" = #{aiModelId}
+		AND "MODEL_ANALS_ID" =
+		#{modelAnalsId}
+		AND "ANALS_VIDO_ID" = #{analsVidoId}
+	</update>
+
+</mapper>

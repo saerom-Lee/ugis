@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="ugis.service.mapper.CTSC005Mapper">
+
+	<!-- <select id="selectRadarList" resultType="egovMap">	
+		SELECT RADAR_ID 
+		FROM RADAR
+	</select> -->
+	
+	<select id="selectYearStaticFree" resultType="egovMap">
+		<![CDATA[
+		select  cast(extract('year' from usgs."POTOGRF_END_DT") as text) as category, count(extract('year' from usgs."POTOGRF_END_DT")) as column1
+		from "TN_USGS" as usgs
+		where usgs."POTOGRF_END_DT" notnull 
+		]]>
+		<if test='inqireBeginDate != null and inqireEndDate != null'>
+             <![CDATA[
+               and "POTOGRF_END_DT" between date(#{inqireBeginDate}) and date(#{inqireEndDate})
+             ]]>
+        </if>
+        <if test='inqireBeginDate != null and inqireEndDate == null'>
+             <![CDATA[
+               and "POTOGRF_END_DT" >= date(#{inqireBeginDate})
+             ]]>
+        </if>
+        <if test='inqireBeginDate == null and inqireEndDate != null'>
+             <![CDATA[
+               and "POTOGRF_END_DT" <= date(#{inqireEndDate})
+             ]]>
+        </if>
+        <![CDATA[
+        group by extract('year' from usgs."POTOGRF_END_DT") 
+        order by extract('year' from usgs."POTOGRF_END_DT")
+        ]]>
+	</select>
+	
+	<select id="selectYearStaticEmer" resultType="egovMap">
+		<![CDATA[
+		select  cast(extract('year' from "POTOGRF_END_DT") as text) as category, count(extract('year' from "POTOGRF_END_DT")) as column2
+		from "TN_EMC"
+		where "POTOGRF_END_DT" notnull 
+		]]>
+		<if test='inqireBeginDate != null and inqireEndDate != null'>
+             <![CDATA[
+               and "POTOGRF_END_DT" between date(#{inqireBeginDate}) and date(#{inqireEndDate})
+             ]]>
+        </if>
+        <if test='inqireBeginDate != null and inqireEndDate == null'>
+             <![CDATA[
+               and "POTOGRF_END_DT" >= date(#{inqireBeginDate})
+             ]]>
+        </if>
+        <if test='inqireBeginDate == null and inqireEndDate != null'>
+             <![CDATA[
+               and "POTOGRF_END_DT" <= date(#{inqireEndDate})
+             ]]>
+        </if>
+        <![CDATA[
+        group by extract('year' from "POTOGRF_END_DT")
+        order by extract('year' from "POTOGRF_END_DT") 
+		]]>
+	</select>
+	
+	<select id="selectKindsStatic" resultType="egovMap">
+		<![CDATA[
+		select coalesce("POTOGRF_VIDO_CD", '기타') as country, count("POTOGRF_VIDO_CD" ) 
+		from "TN_USGS" 
+		]]>
+		<if test='inqireBeginDate != null and inqireEndDate != null'>
+             <![CDATA[
+               where "POTOGRF_END_DT" between #{inqireBeginDate} and #{inqireEndDate};
+             ]]>
+        </if>
+        <![CDATA[
+        group by "POTOGRF_VIDO_CD" 
+        order by country;
+		]]>
+	</select>
+	
+	
+	
+	
+</mapper>

@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="ugis.service.othermapper.CMSC003UgisMapper">
+
+	<select id="selectAll" resultType="egovMap">
+		select * from
+		"NGII_AIR.ORT_ORIENTMAP_AS"
+	</select>
+
+	<!-- 외부 행정망(정사영상) -->
+	<!-- <select id="selectAirOrientMap" parameterType="cmsc003VO" -->
+	<!-- resultType="egovMap"> -->
+	<!-- SELECT 'PDT001' AS IMAGE_CDE, -->
+	<!-- A.OBJECTID, -->
+	<!-- A.ZONE_CODE, -->
+	<!-- SUBSTR -->
+	<!-- (A.ZONE_CODE, 1, 4) SCENEYEAR, -->
+	<!-- A.PH_COURSE, -->
+	<!-- A.PH_NUM, -->
+	<!-- A.SECURITY_C, -->
+	<!-- A.MASK_OX, -->
+	<!-- E.ZONE_NAM, -->
+	<!-- D.STO_DRV, -->
+	<!-- C.FOLDER_NAM, -->
+	<!-- B.FILE_NAM, -->
+	<!-- B.FILE_FORMAT, -->
+	<!-- B.FILE_SIZE, -->
+	<!-- SDE.ST_MINX (A.SHAPE) XMIN, -->
+	<!-- SDE.ST_MAXX (A.SHAPE) XMAX, -->
+	<!-- SDE.ST_MINY (A.SHAPE) YMIN, -->
+	<!-- SDE.ST_MAXY (A.SHAPE) YMAX, -->
+	<!-- A.SERV_OX -->
+	<!-- FROM -->
+	<!-- NGII_AIR.AIR_ORIENTMAP_AS A -->
+	<!-- INNER JOIN NGII_AIR.STO_AIRLOC_DTS B -->
+	<!-- ON -->
+	<!-- A.ZONE_CODE = B.ZONE_CODE -->
+	<!-- AND A.PH_COURSE = B.PH_COURSE -->
+	<!-- AND A.PH_NUM = -->
+	<!-- B.PH_NUM -->
+	<!-- AND B.STORAGE_CDE = 'AIR001' -->
+	<!-- INNER JOIN -->
+	<!-- NGII_AIR.CMT_STORAGE_CDE C -->
+	<!-- ON B.STORAGE_CDE = C.CODE_CDE -->
+	<!-- INNER JOIN -->
+	<!-- NGII_AIR.STO_INFO_DTS D -->
+	<!-- ON B.STO_IDN = D.STO_IDN -->
+	<!-- INNER JOIN -->
+	<!-- NGII_AIR.AIR_ZONE_DTS E -->
+	<!-- ON A.ZONE_CODE = E.ZONE_CODE -->
+	<!-- WHERE -->
+	<!-- #{dateYearFrom} <![CDATA[ <=]]> -->
+	<!-- A.ZONE_YY -->
+	<!-- AND A.ZONE_YY <![CDATA[ <=]]> -->
+	<!-- #{dateYearTo} -->
+	<!-- AND A.SECURITY_C != 'SEC003' -->
+	<!-- AND SDE.ST_INTERSECTS -->
+	<!-- (A.SHAPE, -->
+	<!-- sde.st_polygon(#{wkt},300002))=1 -->
+	<!-- ORDER BY A.ZONE_CODE DESC, -->
+	<!-- A.PH_COURSE ASC, A.PH_NUM ASC -->
+	<!-- </select> -->
+
+	<!-- 내부 행정망(항공영상) -->
+	<select id="selectAirOrientMap" parameterType="cmsc003VO"
+		resultType="egovMap">
+		SELECT 'PDT001' AS IMAGE_CDE,
+		A.OBJECTID,
+		A.ZONE_CODE,
+		SUBSTR
+		(A.ZONE_CODE, 1, 4) SCENEYEAR,
+		A.PH_COURSE,
+		A.PH_NUM,
+		A.SECURITY_C,
+		A.MASK_OX,
+		DECODE (SUBSTR (A.ORIGIN, 1, 1),
+		'중', 'cent',
+		'서', 'west',
+		'동', 'east',
+		'esea')
+		ORIGIN,
+		E.ZONE_NAM,
+		D.STO_DRV,
+		C.FOLDER_NAM,
+		B.FILE_NAM,
+		B.FILE_FORMAT,
+		B.FILE_SIZE,
+		SDE.ST_MINX (A.SHAPE) XMIN,
+		SDE.ST_MAXX (A.SHAPE) XMAX,
+		SDE.ST_MINY (A.SHAPE) YMIN,
+		SDE.ST_MAXY
+		(A.SHAPE) YMAX,
+		A.SERV_OX
+		FROM NGII_AIR3.AIR_ORIENTMAP_AS A
+		INNER JOIN
+		NGII_AIR3.STO_AIRLOC_DTS B
+		ON A.ZONE_CODE = B.ZONE_CODE
+		AND A.PH_COURSE
+		= B.PH_COURSE
+		AND A.PH_NUM = B.PH_NUM
+		AND B.STORAGE_CDE = 'AIR001'
+		INNER
+		JOIN NGII_AIR3.CMT_STORAGE_CDE C
+		ON B.STORAGE_CDE = C.CODE_CDE
+		INNER
+		JOIN NGII_AIR3.STO_INFO_DTS D
+		ON B.STO_IDN = D.STO_IDN
+		INNER JOIN
+		NGII_AIR3.AIR_ZONE_DTS E
+		ON A.ZONE_CODE = E.ZONE_CODE
+		WHERE
+		#{dateYearFrom} <![CDATA[ <=]]>
+		A.ZONE_YY
+		AND A.ZONE_YY <![CDATA[ <=]]>
+		#{dateYearTo}
+		AND A.SECURITY_C != 'SEC003'
+		AND SDE.ST_INTERSECTS
+		(A.SHAPE,
+		sde.st_polygon(#{wkt},2))=1
+		ORDER BY A.ZONE_CODE DESC,
+		A.PH_COURSE ASC, A.PH_NUM ASC
+	</select>
+
+
+
+	<!-- 외부 행정망(정사영상) -->
+	<!-- <select id="selectOrtOrientMap" parameterType="cmsc003VO" -->
+	<!-- resultType="egovMap"> -->
+	<!-- SELECT A.OBJECTID, 'PDT004' AS IMAGE_CDE, SUBSTR (A.ZONE_CODE, 1, 4) -->
+	<!-- SCENEYEAR, -->
+	<!-- A.MAP_NUM, A.MAP5000_NU, A.MAP5000_NA, A.ZONE_CODE, -->
+	<!-- A.ZONE_YY, A.SECURITY_C, -->
+	<!-- A.MASK_OX, DECODE (SUBSTR (A.ORIGIN, 1, 1), -->
+	<!-- '중', 'cent', '서', 'west', -->
+	<!-- '동', -->
+	<!-- 'east', 'esea') ORIGIN, E.ZONE_NAM, -->
+	<!-- B.STORAGE_CDE, D.STO_DRV, C.FOLDER_NAM, -->
+	<!-- B.FILE_NAM, B.FILE_SIZE, NVL -->
+	<!-- (B.FILE_FORMAT, 0) FILE_FORMAT, -->
+	<!-- SDE.ST_MINX -->
+	<!-- (A.SHAPE) XMIN, SDE.ST_MAXX -->
+	<!-- (A.SHAPE) XMAX, SDE.ST_MINY (A.SHAPE) YMIN, -->
+	<!-- SDE.ST_MAXY -->
+	<!-- (A.SHAPE) YMAX -->
+	<!-- FROM "NGII_AIR"."ORT_ORIENTMAP_AS" A INNER JOIN -->
+	<!-- "NGII_AIR".STO_ORTLOC_DTS -->
+	<!-- B ON A.ZONE_CODE = B.ZONE_CODE AND -->
+	<!-- A.MAP5000_NU = B.MAP5000_NUM AND -->
+	<!-- B.STORAGE_CDE -->
+	<!-- IN ('ORT001', 'ORT002', -->
+	<!-- 'ORT003', 'ORT004') INNER JOIN -->
+	<!-- "NGII_AIR".CMT_STORAGE_CDE -->
+	<!-- C ON -->
+	<!-- B.STORAGE_CDE = C.CODE_CDE INNER JOIN "NGII_AIR".STO_INFO_DTS D ON -->
+	<!-- B.STO_IDN -->
+	<!-- = D.STO_IDN INNER JOIN "NGII_AIR".AIR_ZONE_DTS E ON -->
+	<!-- A.ZONE_CODE = -->
+	<!-- E.ZONE_CODE -->
+	<!-- WHERE #{dateYearFrom} <![CDATA[ <=]]> -->
+	<!-- A.ZONE_YY AND A.ZONE_YY <![CDATA[ <=]]> -->
+	<!-- #{dateYearTo} AND A.security_c != 'SEC003' AND sde.St_intersects -->
+	<!-- (A.shape, -->
+	<!-- sde.St_polygon(#{wkt}, 300002)) = 1 ORDER BY A.zone_code DESC -->
+	<!-- </select> -->
+
+	<!-- 내부 행정망(정사영상) -->
+	<select id="selectOrtOrientMap" parameterType="cmsc003VO"
+		resultType="egovMap">
+		SELECT A.OBJECTID,
+		'PDT004' AS IMAGE_CDE,
+		SUBSTR (A.ZONE_CODE, 1, 4)
+		SCENEYEAR,
+		A.MAP_NUM,
+		A.MAP5000_NUM,
+		A.ZONE_CODE,
+		A.ZONE_YY,
+		A.SECURITY_C,
+		A.MASK_OX,
+		DECODE (SUBSTR (A.ORIGIN, 1, 1),
+		'중', 'cent',
+		'서', 'west',
+		'동', 'east',
+		'esea')
+		ORIGIN,
+		E.ZONE_NAM,
+		B.STORAGE_CDE,
+		D.STO_DRV,
+		C.FOLDER_NAM,
+		B.FILE_NAM,
+		B.FILE_EXT,
+		B.FILE_SIZE,
+		NVL (B.FILE_EXT, 0)
+		FILE_FORMAT,
+		SDE.ST_MINX (A.SHAPE) XMIN,
+		SDE.ST_MAXX (A.SHAPE) XMAX,
+		SDE.ST_MINY (A.SHAPE) YMIN,
+		SDE.ST_MAXY (A.SHAPE) YMAX
+		FROM
+		NGII_AIR3.ORT_ORIENTMAP_AS A
+		INNER JOIN NGII_AIR3.STO_ORTLOC_DTS B
+		ON
+		A.ZONE_CODE = B.ZONE_CODE
+		AND A.MAP5000_NUM = B.MAP5000_NUM
+		AND
+		B.STORAGE_CDE IN ('ORT001', 'ORT002', 'ORT003', 'ORT004')
+		INNER JOIN
+		NGII_AIR3.CMT_STORAGE_CDE C
+		ON B.STORAGE_CDE = C.CODE_CDE
+		INNER JOIN
+		NGII_AIR3.STO_INFO_DTS D
+		ON B.STO_IDN = D.STO_IDN
+		INNER JOIN
+		NGII_AIR3.AIR_ZONE_DTS E
+		ON A.ZONE_CODE = E.ZONE_CODE
+		WHERE
+		#{dateYearFrom} <![CDATA[ <=]]>
+		A.ZONE_YY
+		AND A.ZONE_YY <![CDATA[ <=]]>
+		#{dateYearTo}
+		AND A.security_c != 'SEC003'
+		AND sde.St_intersects
+		(A.shape, sde.St_polygon(#{wkt}, 2)) = 1
+		ORDER BY A.zone_code DESC,
+		A.MAP5000_NUM ASC
+	</select>
+
+
+	<!-- 외부 행정망(DEM) -->
+	<!-- <select id="selectDemMap" parameterType="cmsc003VO" -->
+	<!-- resultType="egovMap"> -->
+	<!-- SELECT 'PDT002' AS IMAGE_CDE, A.OBJECTID, SUBSTR (A.ZONE_CODE, 1, 4) -->
+	<!-- SCENEYEAR, -->
+	<!-- A.MAP_NUM, A.MAP5000_NU, A.MAP5000_NA, A.ZONE_YY, -->
+	<!-- A.ZONE_CODE, A.SECURITY_C, -->
+	<!-- DECODE (SUBSTR (A.ORIGIN, 1, 1), '중', -->
+	<!-- 'cent', '서', 'west', '동', -->
+	<!-- 'east', 'esea') -->
+	<!-- ORIGIN, E.ZONE_NAM, D.STO_DRV, -->
+	<!-- C.FOLDER_NAM, B.FILE_NAM, B.FILE_SIZE, NVL -->
+	<!-- (B.FILE_FORMAT, 0) -->
+	<!-- FILE_FORMAT, SDE.ST_MINX (A.SHAPE) XMIN, -->
+	<!-- SDE.ST_MAXX (A.SHAPE) -->
+	<!-- XMAX, -->
+	<!-- SDE.ST_MINY (A.SHAPE) YMIN, SDE.ST_MAXY (A.SHAPE) YMAX FROM -->
+	<!-- "NGII_AIR".DEM_ORIENTMAP_AS -->
+	<!-- A INNER JOIN "NGII_AIR".STO_DEMLOC_DTS B ON -->
+	<!-- A.ZONE_CODE = B.ZONE_CODE -->
+	<!-- AND -->
+	<!-- TRIM (A.MAP5000_NU) = TRIM (B.MAP5000_NUM) -->
+	<!-- AND B.STORAGE_CDE IN ('DEM001', -->
+	<!-- 'DEM002', 'DEM003', 'DEM004') INNER -->
+	<!-- JOIN "NGII_AIR".CMT_STORAGE_CDE C -->
+	<!-- ON -->
+	<!-- B.STORAGE_CDE = C.CODE_CDE INNER -->
+	<!-- JOIN "NGII_AIR".STO_INFO_DTS D ON B.STO_IDN -->
+	<!-- = D.STO_IDN INNER JOIN -->
+	<!-- "NGII_AIR".AIR_ZONE_DTS E ON A.ZONE_CODE = -->
+	<!-- E.ZONE_CODE -->
+	<!-- WHERE -->
+	<!-- #{dateYearFrom} <![CDATA[ <=]]> -->
+	<!-- A.ZONE_YY AND A.ZONE_YY <![CDATA[ <=]]> -->
+	<!-- #{dateYearTo} AND A.security_c != 'SEC003' AND sde.St_intersects -->
+	<!-- (A.shape, -->
+	<!-- sde.St_polygon(#{wkt}, 300002)) = 1 ORDER BY A.ZONE_CODE -->
+	<!-- DESC, A.MAP5000_NU -->
+	<!-- ASC -->
+	<!-- </select> -->
+
+	<!-- 내부 행정망(DEM) -->
+	<select id="selectDemMap" parameterType="cmsc003VO"
+		resultType="egovMap">
+		SELECT 'PDT002' AS IMAGE_CDE,
+		A.OBJECTID,
+		SUBSTR (A.ZONE_CODE, 1, 4)
+		SCENEYEAR,
+		A.MAP_NUM,
+		A.MAP5000_NUM,
+		A.MAP5000_NAM AS MAP5000_NA,
+		A.ZONE_YY,
+		A.ZONE_CODE,
+		A.SECURITY_C,
+		DECODE (SUBSTR (A.ORIGIN, 1, 1),
+		'중', 'cent',
+		'서', 'west',
+		'동', 'east',
+		'esea')
+		ORIGIN,
+		E.ZONE_NAM,
+		D.STO_DRV,
+		C.FOLDER_NAM,
+		B.FILE_NAM,
+		B.FILE_EXT,
+		B.FILE_SIZE,
+		NVL
+		(B.FILE_EXT, 0) FILE_FORMAT,
+		SDE.ST_MINX (A.SHAPE) XMIN,
+		SDE.ST_MAXX
+		(A.SHAPE) XMAX,
+		SDE.ST_MINY
+		(A.SHAPE) YMIN,
+		SDE.ST_MAXY (A.SHAPE) YMAX
+		FROM
+		NGII_AIR3.DEM_ORIENTMAP_AS A
+		INNER JOIN
+		"NGII_AIR3"."STO_DEMLOC_DTS" B
+		ON A.ZONE_CODE = B.ZONE_CODE
+		AND TRIM
+		(A.MAP5000_NUM) = TRIM
+		(B.MAP5000_NUM)
+		AND B.STORAGE_CDE ='DEM005'
+		INNER
+		JOIN
+		NGII_AIR3.CMT_STORAGE_CDE C
+		ON
+		B.STORAGE_CDE =
+		C.CODE_CDE
+		INNER JOIN
+		NGII_AIR3.STO_INFO_DTS D
+		ON
+		B.STO_IDN = D.STO_IDN
+		INNER JOIN
+		NGII_AIR3.AIR_ZONE_DTS E
+		ON A.ZONE_CODE
+		= E.ZONE_CODE
+		WHERE
+		#{dateYearFrom} <![CDATA[ <=]]>
+		A.ZONE_YY
+		AND A.ZONE_YY <![CDATA[ <=]]>
+		#{dateYearTo}
+		AND A.security_c != 'SEC003'
+		AND sde.St_intersects
+		(A.shape, sde.St_polygon(#{wkt}, 2)) = 1
+		ORDER BY A.zone_code DESC
+	</select>
+
+	<!-- 내부 행정망 -->
+	<select id="selectDatasetInfo" parameterType="String"
+		resultType="egovMap">
+		SELECT * FROM TN_DATASET_INFO@LK_G119 WHERE "MSFRTN_ID" =
+		'${value}'
+	</select>
+
+	<select id="deleteDatasetInfo" parameterType="String"
+		resultType="egovMap">
+		DELETE FROM TN_DATASET_INFO@LK_G119 WHERE "MSFRTN_ID" =
+		'${value}'
+	</select>
+
+	<insert id="insertDatasetInfo" parameterType="datasetVO">
+		<selectKey keyProperty="datasetId" resultType="integer"
+			order="BEFORE">
+			SELECT NVL(MAX(DATASET_ID),0)+1 FROM
+			TN_DATASET_INFO@LK_G119
+		</selectKey>
+		INSERT INTO
+		TN_DATASET_INFO@LK_G119 (
+		"DATASET_ID", "DATASET_NM",
+		"LTOP_CRDNT_X", "LTOP_CRDNT_Y", "RTOP_CRDNT_X",
+		"RTOP_CRDNT_Y"
+		,"LBTM_CRDNT_X", "LBTM_CRDNT_Y",
+		"RBTM_CRDNT_X", "RBTM_CRDNT_Y",
+		"MAP_PRJCTN_CN", "MSFRTN_TY_NM", "DATASET_COURS_NM",
+		"ROI_YN",
+		"UPLOAD_DT", "MSFRTN_ID",
+		"DATA_CD", "ADDR", "FILE_NM",
+		"MSFRTN_TY_CD","FILE_TY", "FILE_KOR_NM" , "MAP_NM")
+		VALUES (
+		#{datasetId},
+		#{datasetNm}, #{ltopCrdntX}, #{ltopCrdntY},
+		#{rtopCrdntX},
+		#{rtopCrdntY}, #{lbtmCrdntX}, #{lbtmCrdntY},
+		#{rbtmCrdntX},
+		#{rbtmCrdntY}, #{mapPrjctnCn}, #{msfrtnTyNm},
+		#{datasetCoursNm},
+		#{roiYn}, #{uploadDt}, #{msfrtnId},
+		#{dataCd}, #{addr}, #{fileNm},
+		#{msfrtnTyCd}, #{fileTy}, #{fileKorNm}, #{mapNm})
+	</insert>
+
+	<insert id="insertDatasetInfoMap" parameterType="egovMap">
+		<selectKey keyProperty="datasetId" resultType="integer"
+			order="BEFORE">
+			SELECT NVL(MAX(DATASET_ID),0)+1 FROM
+			TN_DATASET_INFO@LK_G119
+		</selectKey>
+		INSERT INTO TN_DATASET_INFO@LK_G119 (
+		"DATASET_ID", "DATASET_NM",
+		"LTOP_CRDNT_X", "LTOP_CRDNT_Y",
+		"RTOP_CRDNT_X",
+		"RTOP_CRDNT_Y",
+		"LBTM_CRDNT_X", "LBTM_CRDNT_Y",
+		"RBTM_CRDNT_X", "RBTM_CRDNT_Y",
+		"MAP_PRJCTN_CN", "MSFRTN_TY_NM",
+		"DATASET_COURS_NM",
+		"ROI_YN",
+		"UPLOAD_DT", "MSFRTN_ID",
+		"DATA_CD",
+		"ADDR", "FILE_NM",
+		"MSFRTN_TY_CD","FILE_TY", "FILE_KOR_NM", "MAP_NM"
+		)
+		VALUES (
+		#{datasetId},
+		#{datasetNm}, #{ltopCrdntX}, #{ltopCrdntY},
+		#{rtopCrdntX},
+		#{rtopCrdntY}, #{lbtmCrdntX}, #{lbtmCrdntY},
+		#{rbtmCrdntX},
+		#{rbtmCrdntY}, #{mapPrjctnCn}, #{msfrtnTyNm},
+		#{datasetCoursNm},
+		#{roiYn}, #{uploadDt}, #{msfrtnId},
+		#{dataCd},
+		#{addr}, #{fileNm},
+		#{msfrtnTyCd}, #{fileTy}, #{fileKorNm}, #{mapNm}
+		)
+	</insert>
+
+	<!-- 외부망 -->
+	<!-- <select id="selectDatasetInfo" parameterType="String" -->
+	<!-- resultType="egovMap"> -->
+	<!-- SELECT * FROM G119.TN_DATASET_INFO WHERE "MSFRTN_ID" = -->
+	<!-- '${value}' -->
+	<!-- </select> -->
+
+	<!-- <delete id="deleteDatasetInfo" parameterType="String"> -->
+	<!-- DELETE -->
+	<!-- FROM -->
+	<!-- G119.TN_DATASET_INFO WHERE "MSFRTN_ID" = -->
+	<!-- '${value}' -->
+	<!-- </delete> -->
+
+	<!-- <insert id="insertDatasetInfo" parameterType="datasetVO"> -->
+	<!-- <selectKey keyProperty="datasetId" resultType="integer" -->
+	<!-- order="BEFORE"> -->
+	<!-- SELECT NVL(MAX(DATASET_ID),0)+1 FROM -->
+	<!-- G119.TN_DATASET_INFO -->
+	<!-- </selectKey> -->
+	<!-- INSERT INTO -->
+	<!-- G119.TN_DATASET_INFO ( -->
+	<!-- "DATASET_ID", "DATASET_NM", -->
+	<!-- "LTOP_CRDNT_X", "LTOP_CRDNT_Y", "RTOP_CRDNT_X", -->
+	<!-- "RTOP_CRDNT_Y" -->
+	<!-- ,"LBTM_CRDNT_X", "LBTM_CRDNT_Y", -->
+	<!-- "RBTM_CRDNT_X", "RBTM_CRDNT_Y", -->
+	<!-- "MAP_PRJCTN_CN", "MSFRTN_TY_NM", "DATASET_COURS_NM", -->
+	<!-- "ROI_YN", -->
+	<!-- "UPLOAD_DT", "MSFRTN_ID", -->
+	<!-- "DATA_CD", "ADDR", "FILE_NM", -->
+	<!-- "MSFRTN_TY_CD","FILE_TY", "FILE_KOR_NM") -->
+	<!-- VALUES ( -->
+	<!-- #{datasetId}, -->
+	<!-- #{datasetNm}, #{ltopCrdntX}, #{ltopCrdntY}, -->
+	<!-- #{rtopCrdntX}, -->
+	<!-- #{rtopCrdntY}, #{lbtmCrdntX}, #{lbtmCrdntY}, -->
+	<!-- #{rbtmCrdntX}, -->
+	<!-- #{rbtmCrdntY}, #{mapPrjctnCn}, #{msfrtnTyNm}, -->
+	<!-- #{datasetCoursNm}, -->
+	<!-- #{roiYn}, #{uploadDt}, #{msfrtnId}, -->
+	<!-- #{dataCd}, #{addr}, #{fileNm}, -->
+	<!-- #{msfrtnTyCd}, #{fileTy}, #{fileKorNm}) -->
+	<!-- </insert> -->
+
+	<!-- <insert id="insertDatasetInfoMap" parameterType="egovMap"> -->
+	<!-- <selectKey keyProperty="datasetId" resultType="integer" -->
+	<!-- order="BEFORE"> -->
+	<!-- SELECT NVL(MAX(DATASET_ID),0)+1 FROM -->
+	<!-- G119.TN_DATASET_INFO -->
+	<!-- </selectKey> -->
+	<!-- INSERT INTO G119.TN_DATASET_INFO ( -->
+	<!-- "DATASET_ID", "DATASET_NM", -->
+	<!-- "LTOP_CRDNT_X", "LTOP_CRDNT_Y", "RTOP_CRDNT_X", -->
+	<!-- "RTOP_CRDNT_Y", -->
+	<!-- "LBTM_CRDNT_X", "LBTM_CRDNT_Y", -->
+	<!-- "RBTM_CRDNT_X", "RBTM_CRDNT_Y", -->
+	<!-- "MAP_PRJCTN_CN", "MSFRTN_TY_NM", "DATASET_COURS_NM", -->
+	<!-- "ROI_YN", -->
+	<!-- "UPLOAD_DT", "MSFRTN_ID", -->
+	<!-- "DATA_CD", "ADDR", "FILE_NM", -->
+	<!-- "MSFRTN_TY_CD","FILE_TY", "FILE_KOR_NM" -->
+	<!-- ) -->
+	<!-- VALUES ( -->
+	<!-- #{datasetId}, -->
+	<!-- #{datasetNm}, #{ltopCrdntX}, #{ltopCrdntY}, -->
+	<!-- #{rtopCrdntX}, -->
+	<!-- #{rtopCrdntY}, #{lbtmCrdntX}, #{lbtmCrdntY}, -->
+	<!-- #{rbtmCrdntX}, -->
+	<!-- #{rbtmCrdntY}, #{mapPrjctnCn}, #{msfrtnTyNm}, -->
+	<!-- #{datasetCoursNm}, -->
+	<!-- #{roiYn}, #{uploadDt}, #{msfrtnId}, -->
+	<!-- #{dataCd}, #{addr}, #{fileNm}, -->
+	<!-- #{msfrtnTyCd}, #{fileTy}, #{fileKorNm} -->
+	<!-- ) -->
+	<!-- </insert> -->
+
+</mapper>

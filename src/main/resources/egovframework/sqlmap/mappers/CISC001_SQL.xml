@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="ugis.service.mapper.CISC001Mapper">
+
+	<insert id="insertProject"
+		parameterType="ugis.service.vo.CISC001ProjectVO">
+		<!-- INSERT INTO "TN_PROJECT" ("PROJECT_ID", "PROJECT_NM","PROJECT_COURS_NM", 
+			"COORD_NM", "COORD_EXPN", "REG_DT" ) SELECT COALESCE(MAX("PROJECT_ID"), 0)+1, 
+			#{projectNm}, #{projectCoursNm},#{coordNm},#{coordExpn}, now() FROM "TN_PROJECT" -->
+		INSERT INTO "TN_PROJECT"
+		(
+		"PROJECT_NM"
+		,"PROJECT_COURS_NM"
+		,"COORD_NM"
+		,"COORD_EXPN"
+		,"REG_DT"
+		) VALUES
+		(
+		#{projectNm}
+		,#{projectCoursNm}
+		,#{coordNm}
+		,#{coordExpn}
+		,now()
+		)
+	</insert>
+
+
+
+	<update id="updateProject"
+		parameterType="ugis.service.vo.CISC001ProjectVO">
+		UPDATE "TN_PROJECT"
+		SET "PROJECT_NM"=#{projectNm}
+		,
+		"COORD_NM"=#{coordNm}
+		, "USE_YN"=#{useYn}
+		WHERE "PROJECT_ID"=
+		#{projectId}::INTEGER
+	</update>
+
+	<select id="selectProjectList" resultType="egovMap"
+		parameterType="map">
+   		 <![CDATA[
+       		 SELECT * FROM "TN_PROJECT"
+			  WHERE "REG_DT" >= #{sdate}::timestamp AND "REG_DT" <= #{edate}::timestamp
+			    AND "USE_YN" = 'Y'
+			  ORDER BY 1 DESC;
+        ]]>
+	</select>
+
+	<insert id="insertProjectLog"
+		parameterType="ugis.service.vo.CISC001ProjectLogVO">
+		INSERT INTO "TN_PROJECT_LOG"
+		(
+		"PROJECT_ID"
+		,"WORK_KIND"
+		,"INPUT_FILE_NM"
+		,"META_DATA_NM"
+		,"OUTPUT_FILE_NM"
+		,"TARGET_FILE_NM"
+		,"ALGORITHM_NM"
+		,"RED_BAND"
+		,"GREEN_BAND"
+		,"BLUE_BAND"
+		,"CONTROL_TYPE"
+		,"AUTO_AREA_CONTROL"
+		,"RADIATING_FORMULA"
+		,"REG_DT"
+		) VALUES
+		(
+		#{projectId}::INTEGER
+		,#{workKind}
+		,#{inputFileNm}
+		,#{metaDataNm}
+		,#{outputFileNm}
+		,#{targetFileNm}
+		,#{algorithmNm}
+		,#{redBand}
+		,#{greenBand}
+		,#{blueBand}
+		,#{controlType}
+		,#{autoAreaControl}
+		,#{radiatingFormula}
+		,now()
+		)
+	</insert>
+
+
+	<select id="selectProjectLogList" resultType="egovMap"
+		parameterType="map">
+		<![CDATA[
+   		 SELECT * 
+   		   FROM "TN_PROJECT_LOG"
+		  WHERE "PROJECT_ID" = #{projectId}::INTEGER
+		    AND "USE_YN" = 'Y'
+		 ORDER BY "WORK_KIND","PROJECT_LOG_ID" DESC;
+        ]]>
+	</select>
+
+	<update id="deleteProjectLog"
+		parameterType="ugis.service.vo.CISC001ProjectLogVO">
+		UPDATE "TN_PROJECT_LOG"
+		SET "USE_YN"='N'
+		WHERE
+		"PROJECT_LOG_ID"= #{projectLogId}::INTEGER
+	</update>
+
+
+	<select id="selectAlgorithmRegList" resultType="egovMap"
+		parameterType="map">
+   		 <![CDATA[
+       		 SELECT * FROM "TN_ALGORITHM_REG"
+			    WHERE "USE_YN" = 'Y'
+			  ORDER BY 1 DESC;
+        ]]>
+	</select>
+
+
+	<insert id="insertAlgorithm"
+		parameterType="ugis.service.vo.CISC001AlgorithmVO">
+		INSERT INTO "TN_ALGORITHM"
+		(
+		"WORK_KIND"
+		,"ALGORITHM_NM"
+		,"VERSION_NM"
+		,"CLASS_NM"
+		,"ALGORITHM_EXPLN"
+		,"REG_DT"
+		) VALUES
+		(
+		#{workKind}
+		,#{algorithmNm}
+		,#{versionNm}
+		,#{classNm}
+		,#{algorithmExpln}
+		,now()
+		)
+	</insert>
+
+	<update id="updateAlgorithm"
+		parameterType="ugis.service.vo.CISC001AlgorithmVO">
+		UPDATE "TN_ALGORITHM"
+		SET "ALGORITHM_NM"=#{algorithmNm}
+		,
+		"VERSION_NM"=#{versionNm}
+		, "ALGORITHM_EXPLN"=#{algorithmExpln}
+		,
+		"USE_YN"=#{useYn}
+		WHERE "ALGORITHM_ID"= #{algorithmId}::INTEGER
+	</update>
+
+	<select id="selectAlgorithmList" resultType="egovMap"
+		parameterType="map">
+   		 <![CDATA[
+       		 SELECT * FROM "TN_ALGORITHM"
+			    WHERE "WORK_KIND" = #{workKind}
+			      AND "USE_YN" = 'Y'
+			  ORDER BY 1 DESC;
+        ]]>
+	</select>
+
+	<insert id="insertScript"
+		parameterType="ugis.service.vo.CISC001ScriptVO">
+		INSERT INTO "TN_SCRIPT"
+		(
+		"SCRIPT_NM"
+		,"WORK_KIND"
+		,"SAT_KIND"
+		,"META_DATA_NM"
+		,"ALGORITHM_NM"
+		,"INPUT_FILE_NM"
+		,"INPUT_FILE_NM2"
+		,"INPUT_FILE_NM3"
+		,"INPUT_FILE_NM4"
+		,"OUTPUT_FILE_NM"
+		,"TARGET_FILE_NM"
+		,"TOA_OUTPUT_FILE_NM"
+		,"GAIN"
+		,"OFFSET"
+		,"REFLECT_GAIN"
+		,"REFLECT_OFFSET"
+		,"RED_BAND"
+		,"GREEN_BAND"
+		,"BLUE_BAND"
+		,"CONTROL_TYPE"
+		,"AUTO_AREA_CONTROL"
+		,"EXTRL_FILE_COURS_NM"
+		,"HISTOGRAM_AREA"
+		,"REG_DT"
+		)
+		VALUES
+		(
+		#{scriptNm}
+		,#{workKind}
+		,#{satKind}
+		,#{metaDataNm}
+		,#{algorithmNm}
+		,#{inputFileNm}
+		,#{inputFileNm2}
+		,#{inputFileNm3}
+		,#{inputFileNm4}
+		,#{outputFileNm}
+		,#{targetFileNm}
+		,#{toaOutputFileNm}
+		,#{gain}
+		,#{offset}
+		,#{reflectGain}
+		,#{reflectOffset}
+		,#{redBand}
+		,#{greenBand}
+		,#{blueBand}
+		,#{controlType}
+		,#{autoAreaControl}
+		,#{extrlFileCoursNm}
+		,#{histogramArea}
+		,now()
+		)
+	</insert>
+
+	<select id="selectScriptList" resultType="egovMap"
+		parameterType="map">
+		SELECT *
+		FROM "TN_SCRIPT"
+		WHERE 1=1
+		<if test="workKind != null and workKind != ''">
+			AND "WORK_KIND" = #{workKind}
+		</if>
+		<if test="scriptNm != null and scriptNm != ''">
+			AND "SCRIPT_NM" = #{scriptNm}
+		</if>
+		AND "USE_YN" = 'Y'
+		ORDER BY 1 DESC;
+
+
+
+	</select>
+
+	<update id="updateScript"
+		parameterType="ugis.service.vo.CISC001ScriptVO">
+		UPDATE "TN_SCRIPT"
+		SET "SCRIPT_NM"=#{scriptNm}
+		,
+		"META_DATA_NM"=#{metaDataNm}
+		, "ALGORITHM_NM"=#{algorithmNm}
+		,
+		"INPUT_FILE_NM"=#{inputFileNm}
+		, "INPUT_FILE_NM2"=#{inputFileNm2}
+		,
+		"INPUT_FILE_NM3"=#{inputFileNm3}
+		, "INPUT_FILE_NM4"=#{inputFileNm4}
+		,
+		"OUTPUT_FILE_NM"=#{outputFileNm}
+		, "TARGET_FILE_NM"=#{targetFileNm}
+		,
+		"TOA_OUTPUT_FILE_NM"=#{toaOutputFileNm}
+		, "GAIN"=#{gain}
+		,
+		"OFFSET"=#{offset}
+		, "REFLECT_GAIN"=#{reflectGain}
+		,
+		"REFLECT_OFFSET"=#{reflectOffset}
+		, "RED_BAND"=#{redBand}
+		,
+		"GREEN_BAND"=#{greenBand}
+		, "BLUE_BAND"=#{blueBand}
+		,
+		"CONTROL_TYPE"=#{controlType}
+		, "AUTO_AREA_CONTROL"=#{autoAreaControl}
+		, "EXTRL_FILE_COURS_NM"=#{extrlFileCoursNm}
+		,
+		"HISTOGRAM_AREA"=#{histogramArea}
+		WHERE "SCRIPT_ID"=
+		#{scriptId}::INTEGER
+	</update>
+
+	<update id="deleteScript"
+		parameterType="ugis.service.vo.CISC001ScriptVO">
+		UPDATE "TN_SCRIPT"
+		SET "USE_YN" = 'N'
+		WHERE "SCRIPT_ID"=
+		#{scriptId}::INTEGER
+	</update>
+
+
+	<insert id="insertWorkResult"
+		parameterType="ugis.service.vo.CISC001WorkResultVO">
+		<selectKey keyProperty="usgsWorkId" resultType="Integer"
+			order="BEFORE">
+			SELECT NEXTVAL('"TN_USGS_WORK_vido_id_seq"') AS usgsWorkId
+		</selectKey>
+		INSERT INTO "TN_USGS_WORK"
+		SELECT #{usgsWorkId}
+		,"VIDO_ID"
+		,"POTOGRF_BEGIN_DT"
+		,"POTOGRF_END_DT"
+		,"LTOP_CRDNT_X"
+		,"LTOP_CRDNT_Y"
+		,"RTOP_CRDNT_X"
+		,"RTOP_CRDNT_Y"
+		,"LBTM_CRDNT_X"
+		,"LBTM_CRDNT_Y"
+		,"RBTM_CRDNT_X"
+		,"RBTM_CRDNT_Y"
+		,#{ltopCrdntX}
+		,#{ltopCrdntY}
+		,#{rbtmCrdntX}
+		,#{rbtmCrdntY}
+		,#{outFileCoursNm}
+		,"EXTRL_FILE_COURS_NM"
+		,"DWLD_DT"
+		,"POTOGRF_VIDO_CD"
+		,"FLAG"
+		,"VIDO_NM"
+		,#{workKind}
+		FROM
+		"TN_USGS"
+		WHERE "INNER_FILE_COURS_NM"
+		= #{innerFileCoursNm}
+		LIMIT 1
+	</insert>
+
+	<insert id="insertWorkResult2"
+		parameterType="ugis.service.vo.CISC001WorkResultVO">
+		<selectKey keyProperty="usgsWorkId" resultType="Integer"
+			order="BEFORE">
+			SELECT COALESCE(MAX("USGS_WORK_ID"), 0) + 1 FROM
+			"TN_USGS_WORK"
+		</selectKey>
+		INSERT INTO "TN_USGS_WORK"
+		(
+		"USGS_WORK_ID",
+		"VIDO_ID",
+		"POTOGRF_BEGIN_DT",
+		"POTOGRF_END_DT"
+		,"LTOP_CRDNT_X"
+		,"LTOP_CRDNT_Y"
+		,"RBTM_CRDNT_X"
+		,"RBTM_CRDNT_Y"
+		,"INNER_FILE_COURS_NM"
+		,"EXTRL_FILE_COURS_NM"
+		,"DWLD_DT"
+		,"POTOGRF_VIDO_CD"
+		,"FLAG"
+		,"VIDO_NM"
+		,"WORK_KIND"
+		,"REG_DT",
+		"MSFRTN_ID"
+		)
+		VALUES
+		(
+		#{usgsWorkId}
+		,#{vidoId}
+		,#{potogrfBeginDt} ::timestamp
+		,#{potogrfEndDt} ::timestamp
+		,#{ltopCrdntX}
+		,#{ltopCrdntY}
+		,#{rbtmCrdntX}
+		,#{rbtmCrdntY}
+		,#{innerFileCoursNm}
+		,#{extrlFileCoursNm}
+		,#{dwldDt}
+		,#{potogrfVidoCd}
+		,#{flag}
+		,#{vidoNm}
+		,#{workKind}
+		,now()
+		,#{disasterId}
+		)
+	</insert>
+
+
+	<insert id="insertUsgsOnlyVidoId"
+		parameterType="ugis.service.vo.CMSC003InsertVO">
+		<selectKey keyProperty="vidoId" resultType="Integer"
+			order="BEFORE">
+			SELECT COALESCE(MAX("VIDO_ID"), 0) + 1 FROM
+			"TN_USGS"
+		</selectKey>
+		INSERT INTO "TN_USGS"
+		("VIDO_ID") VALUES (#{vidoId})
+	</insert>
+
+	<select id="selectLastUsgsId" resultType="int">
+		SELECT
+		MAX("VIDO_ID")
+		FROM "TN_USGS"
+	</select>
+
+	<insert id="insertUsgsMeta"
+		parameterType="ugis.service.vo.CMSC003InsertVO">
+		insert into "TN_USGS_META"
+		("VIDO_ID", "MAP_PRJCTN_CN")
+		values (#{vidoId} ,#{mapPrjctnCn});
+	</insert>
+
+</mapper>

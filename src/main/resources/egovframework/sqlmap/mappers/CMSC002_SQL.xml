@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="ugis.service.mapper.CMSC002Mapper">
+
+	<select id="selectRadarList" resultType="egovMap">	
+		SELECT RADAR_ID 
+		FROM RADAR
+	</select>
+	<select id="selectSiList" resultType="egovMap">
+		select bjcd, name , ST_XMin(geom),st_ymin(geom),st_xmax(geom),st_ymax(geom)   from n3a_g0010000 order by name asc
+	</select>
+	<select id="selectSggList" resultType="egovMap" parameterType="string">
+		select bjcd,name, ST_XMin(geom),st_ymin(geom),st_xmax(geom),st_ymax(geom)   FROM public.n3a_g0100000 where substr(bjcd,1,2)=#{si}
+	</select>
+
+	<select id="selectEmdList" resultType="egovMap" parameterType="string">
+		select bjcd,name, ST_XMin(geom),st_ymin(geom),st_xmax(geom),st_ymax(geom)   FROM public.n3a_g0110000 where substr(bjcd,1,5)=#{sgg}
+	</select>
+
+
+
+
+</mapper>

@@ -1,0 +1,2059 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="ugis.service.mapper.CMSC003Mapper">
+
+	<select id="selectUsgsByInFileCours" parameterType="String"
+		resultType="egovMap">
+		select * from "TN_USGS" usgs JOIN "TN_USGS_META" AS
+		usgs_meta on usgs."VIDO_ID" = usgs_meta."VIDO_ID"
+		where
+		usgs."INNER_FILE_COURS_NM"
+		='${value}' limit 1
+	</select>
+
+	<select id="selectUsgsWorkByInFileCours" parameterType="String"
+		resultType="egovMap">
+		select * from "TN_USGS_WORK" usgs JOIN "TN_USGS_META" AS
+		usgs_meta on usgs."VIDO_ID" = usgs_meta."VIDO_ID"
+		where
+		usgs."INNER_FILE_COURS_NM"
+		='${value}' limit 1
+	</select>
+
+
+	<select id="selectAeroList" parameterType="cmsc003VO"
+		resultType="egovMap">
+		select * from "TN_AERO"
+	</select>
+
+	<select id="selectEmcList" parameterType="cmsc003VO"
+		resultType="egovMap">
+		select * from "TN_EMC" AS usgs JOIN "TN_USGS_META" AS
+		usgs_meta on usgs."VIDO_ID" = usgs_meta."VIDO_ID"
+	</select>
+
+	<select id="selectAIMdAnalsMapResut" parameterType="String"
+		resultType="egovMap">
+		SELECT * FROM "TN_AI_MODEL_ANALS_VIDO_MAPNG_RESULT" WHERE
+		"VIDO_ID" = ${value}
+		ORDER BY "ALL_FILE_NM"
+	</select>
+
+	<select id="selectChangeDetctResult" parameterType="String"
+		resultType="egovMap">
+		SELECT * FROM "TH_CHNGE_DETCT_VIDO_RESULT" WHERE
+		"VIDO_ID" =
+		${value}
+		ORDER BY "ALL_FILE_NM"
+	</select>
+
+	<select id="selectUsgsCurrentList" parameterType="cmsc003VO"
+		resultType="egovMap">
+		SELECT usgs.*,
+		usgs_meta."MAP_PRJCTN_CN",
+		usgs_meta."BAND_CN",
+		#{disasterType} AS disasterType,
+		#{dateFrom} AS dateFrom,
+		#{dateTo} AS
+		dateTo
+		FROM "TN_USGS" AS usgs
+		JOIN "TN_USGS_META" AS usgs_meta
+		on
+		usgs."VIDO_ID" = usgs_meta."VIDO_ID"
+		<where>
+			AND (usgs."POTOGRF_VIDO_CD" IN (
+			<if test="dataKindCurrent != null or dataKindResult != null">
+				'0','1','2','6'
+				<!-- ,'7','8' -->
+			</if>
+			))
+			<!-- <if test="dataKindResult != null"></if> -->
+			<if test="dateFrom != ''">
+			<![CDATA[
+				AND (usgs."POTOGRF_BEGIN_DT" >= #{dateFrom}::timestamp)
+				]]>
+			</if>
+			<if test="dateTo != ''">
+			<![CDATA[
+				AND (usgs."POTOGRF_END_DT" <= #{dateTo}::timestamp)
+				]]>
+			</if>
+			<![CDATA[
+				AND (
+					  (
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:4326'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:32652'
+					)
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5179'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5186'
+					)
+				)
+			]]>
+		</where>
+		ORDER BY usgs."POTOGRF_BEGIN_DT", usgs."INNER_FILE_COURS_NM"
+	</select>
+
+
+	<select id="selectUsgsEmergencyList" parameterType="cmsc003VO"
+		resultType="egovMap">
+		SELECT usgs.*,
+		usgs_meta."MAP_PRJCTN_CN",
+		usgs_meta."BAND_CN",
+		#{disasterType} AS disasterType,
+		#{dateFrom} AS dateFrom,
+		#{dateTo} AS
+		dateTo
+		FROM "TN_USGS" AS usgs
+		JOIN "TN_USGS_META" AS usgs_meta
+		on
+		usgs."VIDO_ID" = usgs_meta."VIDO_ID"
+		<where>
+			AND (usgs."POTOGRF_VIDO_CD"
+			<if test="dataKindEmergency != null">
+				<choose>
+					<when test="disasterType.equals('AllDisaster')">
+						IN ('3', '4', '5', '10', '11','20')
+					</when>
+					<when test="disasterType.equals('Flood')">
+						= '3'
+					</when>
+					<when test="disasterType.equals('ForestFire')">
+						= '5'
+					</when>
+					<when test="disasterType.equals('Landslide')">
+						= '4'
+					</when>
+					<when test="disasterType.equals('Earthquake')">
+						= '10'
+					</when>
+					<when test="disasterType.equals('MaritimeDisaster')">
+						= '11'
+					</when>
+					<when test="disasterType.equals('RedTide')">
+						= '20'
+					</when>
+				</choose>
+			</if>
+			)
+			<!-- <if test="dataKindResult != null"></if> -->
+			<if test="dateFrom != ''">
+			<![CDATA[
+				AND (
+				usgs."POTOGRF_BEGIN_DT" >= #{dateFrom}::timestamp
+				)
+				]]>
+			</if>
+			<if test="dateTo != ''">
+			<![CDATA[
+				AND (
+				usgs."POTOGRF_END_DT" <= #{dateTo}::timestamp
+				)
+				]]>
+			</if>
+			<![CDATA[
+				AND (
+					  (
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:4326'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:32652'
+					)
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5179'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5186'
+					)
+				)
+			]]>
+		</where>
+		ORDER BY usgs."INNER_FILE_COURS_NM"
+	</select>
+
+	<select id="selectUsgsWorkCurrentList" parameterType="cmsc003VO"
+		resultType="egovMap">
+		SELECT usgs.*,
+		usgs_meta."MAP_PRJCTN_CN",
+		usgs_meta."BAND_CN",
+		#{disasterType} AS disasterType,
+		#{dateFrom} AS dateFrom,
+		#{dateTo} AS
+		dateTo
+		FROM "TN_USGS_WORK" AS usgs
+		JOIN "TN_USGS_META" AS usgs_meta
+		on
+		usgs."VIDO_ID" = usgs_meta."VIDO_ID"
+		<where>
+			AND (usgs."POTOGRF_VIDO_CD" IN (
+			<if test="dataKindCurrent != null or dataKindResult != null">
+				'0','1','2','6','7','8'
+			</if>
+			))
+			<!-- <if test="dataKindResult != null"></if> -->
+			<if test="dateFrom != ''">
+			<![CDATA[
+				AND (
+				usgs."POTOGRF_BEGIN_DT" >= #{dateFrom}::timestamp
+				)
+				]]>
+			</if>
+			<if test="dateTo != ''">
+			<![CDATA[
+				AND (
+				usgs."POTOGRF_END_DT" <= #{dateTo}::timestamp
+				)
+				]]>
+			</if>
+			<![CDATA[
+				AND (
+					  (
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:4326'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:32652'
+					)
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5179'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5186'
+					)
+				)
+			]]>
+		</where>
+		ORDER BY usgs."POTOGRF_BEGIN_DT", usgs."INNER_FILE_COURS_NM"
+	</select>
+
+	<select id="selectAllUsgsWorkList"
+		parameterType="ugis.service.vo.CISC015VO$ObjChangeSearch"
+		resultType="egovMap">
+		SELECT usgs.*,
+		usgs_meta.*
+		FROM "TN_USGS_WORK" AS usgs
+		JOIN
+		"TN_USGS_META" AS usgs_meta
+		on
+		usgs."VIDO_ID" = usgs_meta."VIDO_ID"
+		<where>
+			<if test="potogrfBeginDt != ''">
+			<![CDATA[
+				AND (
+				usgs."POTOGRF_BEGIN_DT" >= #{potogrfBeginDt}::timestamp
+				)
+				]]>
+			</if>
+			<if test="potogrfEndDt != ''">
+			<![CDATA[
+				AND (
+				usgs."POTOGRF_END_DT" <= #{potogrfEndDt}::timestamp
+				)
+				]]>
+			</if>
+		</where>
+	</select>
+
+	<select id="selectUsgsWorkMosa" parameterType="cmsc003VO"
+		resultType="egovMap">
+		SELECT usgs.*,
+		usgs_meta."MAP_PRJCTN_CN",
+		usgs_meta."BAND_CN",
+		#{disasterType} AS disasterType,
+		#{dateFrom} AS dateFrom,
+		#{dateTo} AS
+		dateTo
+		FROM "TN_USGS_WORK" AS usgs
+		JOIN "TN_USGS_META" AS usgs_meta
+		on
+		usgs."VIDO_ID" = usgs_meta."VIDO_ID"
+		<where>
+			AND (usgs."POTOGRF_VIDO_CD" IN ('8' ))
+			<!-- <if test="dataKindResult != null"></if> -->
+			<if test="dateFrom != ''">
+			<![CDATA[
+				AND (
+				usgs."POTOGRF_BEGIN_DT" >= #{dateFrom}::timestamp
+				)
+				]]>
+			</if>
+			<if test="dateTo != ''">
+			<![CDATA[
+				AND (
+				usgs."POTOGRF_END_DT" <= #{dateTo}::timestamp
+				)
+				]]>
+			</if>
+			<if
+				test="uly4326 != '' and ulx4326 != '' and lry4326 != '' and lrx4326 != ''">
+				AND (
+				(
+				usgs."LTOP_CRDNT_Y" &gt;= CAST(#{ulx4326} AS DOUBLE
+				PRECISION) AND
+				usgs."LTOP_CRDNT_Y" &lt;= CAST(#{lrx4326} AS DOUBLE
+				PRECISION) AND
+				usgs."LTOP_CRDNT_X" &gt;= CAST(#{lry4326} AS DOUBLE
+				PRECISION) AND
+				usgs."LTOP_CRDNT_X" &lt;= CAST(#{uly4326} AS DOUBLE
+				PRECISION)
+				)
+				OR(
+				usgs."LTOP_CRDNT_Y" &gt;= CAST(#{ulx4326} AS DOUBLE
+				PRECISION) AND
+				usgs."LTOP_CRDNT_Y" &lt;= CAST(#{lrx4326} AS DOUBLE
+				PRECISION) AND
+				usgs."RBTM_CRDNT_X" &gt;= CAST(#{lry4326} AS DOUBLE
+				PRECISION) AND
+				usgs."RBTM_CRDNT_X" &lt;= CAST(#{uly4326} AS DOUBLE
+				PRECISION)
+				)
+				OR(
+				usgs."RBTM_CRDNT_Y" &gt;= CAST(#{ulx4326} AS DOUBLE
+				PRECISION) AND
+				usgs."RBTM_CRDNT_Y" &lt;= CAST(#{lrx4326} AS DOUBLE
+				PRECISION) AND
+				usgs."LTOP_CRDNT_X" &gt;= CAST(#{lry4326} AS DOUBLE
+				PRECISION) AND
+				usgs."LTOP_CRDNT_X" &lt;= CAST(#{uly4326} AS DOUBLE
+				PRECISION)
+				)
+				OR(
+				usgs."RBTM_CRDNT_Y" &gt;= CAST(#{ulx4326} AS DOUBLE
+				PRECISION) AND
+				usgs."RBTM_CRDNT_Y" &lt;= CAST(#{lrx4326} AS DOUBLE
+				PRECISION) AND
+				usgs."RBTM_CRDNT_X" &gt;= CAST(#{lry4326} AS DOUBLE
+				PRECISION) AND
+				usgs."RBTM_CRDNT_X" &lt;= CAST(#{uly4326} AS DOUBLE
+				PRECISION)
+				)
+				OR(
+				CAST(#{ulx4326} AS DOUBLE PRECISION) &gt;=
+				usgs."LTOP_CRDNT_Y" AND
+				CAST(#{lrx4326} AS DOUBLE PRECISION) &lt;=
+				usgs."RBTM_CRDNT_Y" AND
+				CAST(#{uly4326} AS DOUBLE PRECISION) &gt;=
+				usgs."RBTM_CRDNT_X" AND
+				CAST(#{lry4326} AS DOUBLE PRECISION) &lt;=
+				usgs."LTOP_CRDNT_X"
+				)
+				)
+			</if>
+		</where>
+	</select>
+
+	<select id="selectUsgsWorkEmergencyList"
+		parameterType="cmsc003VO" resultType="egovMap">
+		SELECT usgs.*,
+		usgs_meta."MAP_PRJCTN_CN",
+		usgs_meta."BAND_CN",
+		#{disasterType} AS disasterType,
+		#{dateFrom} AS dateFrom,
+		#{dateTo} AS
+		dateTo
+		FROM "TN_USGS_WORK" AS usgs
+		JOIN "TN_USGS_META" AS usgs_meta
+		on
+		usgs."VIDO_ID" = usgs_meta."VIDO_ID"
+		<where>
+			AND (usgs."POTOGRF_VIDO_CD"
+			<if test="dataKindEmergency != null">
+				<choose>
+					<when test="disasterType.equals('AllDisaster')">
+						IN ('3', '4', '5', '10', '11','20')
+					</when>
+					<when test="disasterType.equals('Flood')">
+						= '3'
+					</when>
+					<when test="disasterType.equals('ForestFire')">
+						= '5'
+					</when>
+					<when test="disasterType.equals('Landslide')">
+						= '4'
+					</when>
+					<when test="disasterType.equals('Earthquake')">
+						= '10'
+					</when>
+					<when test="disasterType.equals('Typhoon')">
+						= '11'
+					</when>
+					<when test="disasterType.equals('RedTide')">
+						= '20'
+					</when>
+				</choose>
+			</if>
+			)
+			<!-- <if test="dataKindResult != null"></if> -->
+			<if test="dateFrom != ''">
+			<![CDATA[
+				AND (
+				usgs."POTOGRF_BEGIN_DT" >= #{dateFrom}::timestamp
+				)
+				]]>
+			</if>
+			<if test="dateTo != ''">
+			<![CDATA[
+				AND (
+				usgs."POTOGRF_END_DT" <= #{dateTo}::timestamp
+				)
+				]]>
+			</if>
+			<![CDATA[
+				AND (
+					  (
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:4326'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:32652'
+					)
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5179'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5186'
+					)
+				)
+			]]>
+		</where>
+		ORDER BY usgs."INNER_FILE_COURS_NM"
+	</select>
+
+
+	<select id="selectG001List" resultType="egovMap">
+		SELECT bjcd, name FROM
+		"n3a_g0010000"
+	</select>
+
+	<select id="selectG001Geom" parameterType="cmsc003VO"
+		resultType="egovMap">
+		SELECT bjcd, name, ST_AsText(ST_Centroid(geom)) AS
+		centeroid FROM "n3a_g0010000" where bjcd = #{g001Bjcd}
+	</select>
+
+	<select id="selectG010List" parameterType="cmsc003VO"
+		resultType="egovMap">
+		SELECT bjcd, name FROM "n3a_g0100000" WHERE bjcd like
+		#{g010Bjcd}||'%'
+	</select>
+
+	<select id="selectG010Geom" parameterType="cmsc003VO"
+		resultType="egovMap">
+		SELECT bjcd, name, ST_AsText(ST_Centroid(geom)) AS
+		centeroid FROM "n3a_g0100000" WHERE bjcd = #{g010Bjcd}
+	</select>
+
+	<select id="selectG011List" parameterType="cmsc003VO"
+		resultType="egovMap">
+		SELECT bjcd, name FROM "n3a_g0110000" WHERE bjcd like
+		#{g011Bjcd}||'%'
+	</select>
+
+	<select id="selectG011Geom" parameterType="cmsc003VO"
+		resultType="egovMap">
+		SELECT bjcd, name, ST_AsText(ST_Centroid(geom)) AS
+		centeroid FROM "n3a_g0110000" WHERE bjcd = #{g011Bjcd}
+	</select>
+
+
+	<select id="selectAllDatasetInfo" parameterType="cmsc003VO2"
+		resultType="egovMap">
+		<![CDATA[
+			SELECT * FROM "TN_DATASET_INFO" 
+		]]>
+		<where>
+			"MSFRTN_ID" = CAST(#{msfrtnInfoColctRequstId} AS TEXT)
+		</where>
+		ORDER BY "POTOGRF_BEGIN_DT","FILE_NM"
+	</select>
+
+
+	<select id="selectDatasetInfoByIdList"
+		parameterType="cmsc003VO2" resultType="egovMap">
+		SELECT * FROM "TN_DATASET_INFO"
+		<where>
+			"MSFRTN_ID" = CAST(#{msfrtnInfoColctRequstId} AS TEXT)
+			AND
+			"DATASET_ID" IN
+			<foreach item="item" collection="datasetId" open="("
+				close=")" separator=",">
+				#{item}
+			</foreach>
+		</where>
+	</select>
+
+	<select id="selectAllDatasetInfoFromDate"
+		parameterType="cmsc003VO2" resultType="egovMap">
+		<![CDATA[
+			SELECT * FROM "TN_DATASET_INFO" 
+		]]>
+		<where>
+			"MSFRTN_ID" = CAST(#{msfrtnInfoColctRequstId} AS TEXT)
+			<if test="colctBeginDe != null">
+			<![CDATA[
+				AND ("POTOGRF_BEGIN_DT" >= #{colctBeginDe}::timestamp)
+				]]>
+			</if>
+			<if test="colctEndDe != null">
+			<![CDATA[
+				AND ("POTOGRF_END_DT" <= #{colctEndDe}::timestamp)
+				]]>
+			</if>
+			<if test="dataType == 2">
+				AND
+				"WORK_KIND" isNull
+			</if>
+			<if test="dataType == 3">
+				AND
+				"WORK_KIND" notNull
+			</if>
+		</where>
+	</select>
+
+	<select id="selectDatasetInfoByFileCoursNm"
+		parameterType="String" resultType="egovMap">
+		<![CDATA[
+			SELECT * FROM "TN_DATASET_INFO" WHERE "FULL_FILE_COURS_NM" = '${value}' limit 1;
+		]]>
+	</select>
+
+	<insert id="insertDatasetInfo" parameterType="datasetVO">
+		<selectKey keyProperty="datasetId" resultType="bigdecimal"
+			order="BEFORE">
+			SELECT COALESCE(MAX("DATASET_ID"), 0) + 1 FROM
+			"TN_DATASET_INFO"
+		</selectKey>
+		<![CDATA[
+		INSERT INTO	"TN_DATASET_INFO" (
+			"DATASET_ID", "DATASET_NM",	
+			"LTOP_CRDNT_X",	"LTOP_CRDNT_Y",	"RTOP_CRDNT_X",	"RTOP_CRDNT_Y",
+			"LBTM_CRDNT_X",	"LBTM_CRDNT_Y",	"RBTM_CRDNT_X",	"RBTM_CRDNT_Y",
+			"MAP_PRJCTN_CN", "MSFRTN_TY_NM", "DATASET_COURS_NM", "UPLOAD_DT", 
+			"MSFRTN_ID", "DATA_CD", "ADDR", "FILE_NM", "MSFRTN_TY_CD",
+			"FILE_TY", "YEAR", "ROI_YN", "FILE_KOR_NM", "DPI", "FULL_FILE_COURS_NM", "POTOGRF_BEGIN_DT","POTOGRF_END_DT", "WORK_KIND", "SAT_DIR", "MAP_NM" 
+		)
+		VALUES (
+			#{datasetId}, #{datasetNm}, 
+			#{ltopCrdntX}, #{ltopCrdntY}, #{rtopCrdntX}, #{rtopCrdntY},
+			#{lbtmCrdntX}, #{lbtmCrdntY}, #{rbtmCrdntX}, #{rbtmCrdntY},
+			#{mapPrjctnCn},	#{msfrtnTyNm}, #{datasetCoursNm}, #{uploadDt},
+			#{msfrtnId}, #{dataCd},	#{addr}, #{fileNm},	#{msfrtnTyCd},
+			#{fileTy}, #{year}, #{roiYn}, #{fileKorNm}, #{dpi}, #{fullFileCoursNm}, #{potogrfBeginDt}::timestamp, #{potogrfEndDt}::timestamp, #{workKind}, #{satDir}, #{mapNm}
+		)
+		]]>
+	</insert>
+
+	<update id="updateDatasetInfo" parameterType="datasetVO">
+		<![CDATA[
+		UPDATE "TN_DATASET_INFO" SET
+		"DATASET_NM"=#{datasetNm},
+		"LTOP_CRDNT_X"=#{ltopCrdntX}, "LTOP_CRDNT_Y"=#{ltopCrdntY}, "RTOP_CRDNT_X"=#{rtopCrdntX}, "RTOP_CRDNT_Y"=#{rtopCrdntY},
+		"LBTM_CRDNT_X"=#{lbtmCrdntX}, "LBTM_CRDNT_Y"=#{lbtmCrdntY},"RBTM_CRDNT_X"=#{rbtmCrdntX},"RBTM_CRDNT_Y"=#{rbtmCrdntY},
+		"MAP_PRJCTN_CN"=#{mapPrjctnCn}, "MSFRTN_TY_NM"=#{msfrtnTyNm}, "DATASET_COURS_NM"=#{datasetCoursNm}, "DATA_CD"=#{dataCd},
+		"ADDR"=#{addr}, "FILE_NM"=#{fileNm}, "MSFRTN_TY_CD"=#{msfrtnTyCd}, "FILE_TY"=#{fileTy}, "YEAR"=#{year}, "ROI_YN"=#{roiYn},
+		"FILE_KOR_NM"=#{fileKorNm}, "DPI"=#{dpi}, "FULL_FILE_COURS_NM"=#{fullFileCoursNm},
+		"POTOGRF_BEGIN_DT"=#{potogrfBeginDt}::timestamp, "POTOGRF_END_DT"=#{potogrfEndDt}::timestamp,
+		"WORK_KIND"=#{workKind}, "SAT_DIR"=#{satDir}, "MAP_NM"=#{mapNm}
+		WHERE
+		"DATASET_ID"=#{datasetId} AND "MSFRTN_ID"=#{msfrtnId}
+		]]>
+	</update>
+
+
+
+	<select id="selectDisasterInfoId" parameterType="cmsc003VO2"
+		resultType="egovMap">
+		SELECT *,
+		<![CDATA[(select TC."CODE_NM" from public."TN_CMMN_CODE" TC
+		WHERE TC."CMMN_CODE" = TM."MSFRTN_TY_CD") as "MSFRTN_TY_SRCHWRD"  ]]>
+		FROM public."TN_MSFRTN_INFO_COLCT_REQUST" TM
+		WHERE
+		"COLCT_BEGIN_DE" like
+		#{colctBeginDe}||'%' AND "MSFRTN_AREA_SRCHWRD"
+		like
+		'%'||#{msfrtnAreaSrchwrd}||'%'
+		order by "MSFRTN_INFO_COLCT_REQUST_ID"
+		desc;
+	</select>
+
+	<select id="selectByRequestId" parameterType="String"
+		resultType="egovMap">
+		SELECT * FROM "TN_MSFRTN_INFO_COLCT_REQUST" WHERE
+		"MSFRTN_INFO_COLCT_REQUST_ID" = ${value};
+	</select>
+
+	<update id="updateMsfrtnInfoColctRequst"
+		parameterType="cmsc003VO2">
+		UPDATE "TN_MSFRTN_INFO_COLCT_REQUST" SET
+		"LTOP_CRDNT_X" =
+		#{ltopCrdntX},
+		"LTOP_CRDNT_Y" = #{ltopCrdntY},
+		"RTOP_CRDNT_X" =
+		#{rtopCrdntX},
+		"RTOP_CRDNT_Y" = #{rtopCrdntY},
+		"LBTM_CRDNT_X" =
+		#{lbtmCrdntX},
+		"LBTM_CRDNT_Y" = #{lbtmCrdntY},
+		"RBTM_CRDNT_X" =
+		#{rbtmCrdntX},
+		"RBTM_CRDNT_Y" = #{rbtmCrdntY},
+		"MAP_PRJCTN_CN" =
+		#{mapPrjctnCn}
+		WHERE
+		"MSFRTN_INFO_COLCT_REQUST_ID" =
+		#{msfrtnInfoColctRequstId}
+	</update>
+
+	<select id="selectTcMsfrtnTyInfo" parameterType="String"
+		resultType="egovMap">
+		SELECT * FROM "TC_MSFRTN_TY_INFO" WHERE "MSFRTN_TY_CD" =
+		'${value}'
+	</select>
+
+
+	<insert id="insertDatasetWork" parameterType="egovMap">
+		<selectKey keyProperty="datasetWorkId" resultType="integer"
+			order="BEFORE">
+			SELECT COALESCE(MAX("DATASET_WORK_ID"), 0) + 1 FROM
+			"TN_DATASET_WORK"
+		</selectKey>
+		INSERT INTO
+		"TN_DATASET_WORK" (
+		"DATASET_WORK_ID", "VIDO_ID",
+		"POTOGRF_BEGIN_DT", "POTOGRF_END_DT",
+		"LTOP_CRDNT_X", "LTOP_CRDNT_Y",
+		"RTOP_CRDNT_X", "RTOP_CRDNT_Y",
+		"LBTM_CRDNT_X", "LBTM_CRDNT_Y",
+		"RBTM_CRDNT_X", "RBTM_CRDNT_Y",
+		"INNER_FILE_COURS_NM",
+		"EXTRL_FILE_COURS_NM",
+		"DWLD_DT", "POTOGRF_VIDO_CD", "FLAG", "VIDO_NM",
+		"WORK_KIND", "REG_DT")
+		VALUES (
+		#{datasetWorkId}, #{vidoId},
+		#{potogrfBeginDt}, #{potogrfEndDt},
+		#{ltopCrdntX}, #{ltopCrdntY},
+		#{rtopCrdntX},#{rtopCrdntY},
+		#{lbtmCrdntX}, #{lbtmCrdntYy},
+		#{rbtmCrdntX}, #{rbtmCrdntY},
+		#{innerFileCoursNm}, #{extrlFileCoursNm},
+		#{dwldDt}, #{potogrfVidoCd},#{flag}, #{vidoNm}, #{workKind}, #{regDt}
+		);
+	</insert>
+
+	<select id="selectDatasetWorkList"
+		resultType="ugis.service.vo.CISC015VO$ObjChangeListRes"
+		parameterType="ugis.service.vo.CISC015VO$ObjChangeSearch">
+		SELECT * FROM "TN_DATASET_WORK"
+		<where>
+			<if test="searchPotogrfBeginDt != null">
+				AND "POTOGRF_BEGIN_DT" >= #{searchPotogrfBegirnDt}
+			</if>
+			<if test="searchPotogrfEndDt != null">
+				AND "POTOGRF_END_DT" <![CDATA[<=]]>
+				#{searchPotogrfEndDt}
+			</if>
+		</where>
+		ORDER BY "DATASET_WORK_ID" DESC
+	</select>
+
+
+	<insert id="insertUsgs"
+		parameterType="ugis.service.vo.CMSC003InsertVO">
+		<selectKey keyProperty="vidoId" resultType="int"
+			order="BEFORE">
+			SELECT COALESCE(MAX("VIDO_ID"), 0) + 1 FROM
+			"TN_USGS"
+		</selectKey>
+		insert into "TN_USGS"
+		(
+		"VIDO_ID", "POTOGRF_BEGIN_DT", "POTOGRF_END_DT",
+		"LTOP_CRDNT_X", "LTOP_CRDNT_Y", "RBTM_CRDNT_X", "RBTM_CRDNT_Y",
+		"INNER_FILE_COURS_NM","POTOGRF_VIDO_CD"
+		)
+		values (
+		#{vidoId},
+		#{potogrfBeginDt}::timestamp,#{potogrfEndDt}::timestamp,
+		#{ltopCrdntX}, #{ltopCrdntY},
+		#{rbtmCrdntX}, #{rbtmCrdntY},
+		#{innerFileCoursNm},
+		#{potogrfVidoCd}
+		);
+	</insert>
+
+	<select id="selectLastUsgsId" resultType="int">
+		SELECT
+		MAX("VIDO_ID")
+		FROM "TN_USGS"
+	</select>
+
+	<insert id="insertUsgsMeta"
+		parameterType="ugis.service.vo.CMSC003InsertVO">
+		insert into "TN_USGS_META"
+		(
+		"VIDO_ID",
+		"MAP_PRJCTN_CN"
+		)
+		values (
+		#{vidoId},
+		#{mapPrjctnCn}
+		);
+	</insert>
+
+	<select id="selectDatasetInfo" parameterType="datasetVO"
+		resultType="egovMap">
+		SELECT * FROM
+		"TN_DATASET_INFO" WHERE
+		"MSFRTN_ID" =
+		#{msfrtnId}
+		AND
+		"FULL_FILE_COURS_NM" = #{fullFileCoursNm}
+	</select>
+	
+	
+	<!-- select 국토영상공급시스템 전송 테이블  = "TN_DATASET_SAVE_INFO"-->
+	<select id="selectDatasetSaveInfo" parameterType="String"
+		resultType="egovMap">
+		SELECT * 
+		FROM "TN_DATASET_SAVE_INFO" 
+		WHERE "MSFRTN_ID" ='${value}'
+	</select>
+
+	<!-- delete 국토영상공급시스템 전송 테이블  = "TN_DATASET_SAVE_INFO" -->
+	<delete id="deleteDatasetSaveInfo" parameterType="String">
+		DELETE 
+		FROM "TN_DATASET_SAVE_INFO"
+		WHERE "MSFRTN_ID" = '${value}'
+	</delete>
+	
+	<!-- insert 국토영상공급시스템 전송 테이블  = "TN_DATASET_SAVE_INFO" -->
+	<insert id="insertDatasetSaveInfoMap" parameterType="egovMap">
+	
+		<selectKey keyProperty="datasetId" resultType="bigdecimal"
+			order="BEFORE">
+			SELECT COALESCE(MAX("DATASET_ID"), 0) + 1 
+			FROM "TN_DATASET_SAVE_INFO"
+		</selectKey>		
+		<![CDATA[
+		
+		INSERT INTO "TN_DATASET_SAVE_INFO" (
+		"DATASET_ID", "DATASET_NM",
+		"LTOP_CRDNT_X", "LTOP_CRDNT_Y",
+		"RTOP_CRDNT_X",
+		"RTOP_CRDNT_Y",
+		"LBTM_CRDNT_X", "LBTM_CRDNT_Y",
+		"RBTM_CRDNT_X", "RBTM_CRDNT_Y",
+		"MAP_PRJCTN_CN", "MSFRTN_TY_NM",
+		"DATASET_COURS_NM",
+		"ROI_YN",
+		"UPLOAD_DT", "MSFRTN_ID",
+		"DATA_CD",
+		"ADDR", "FILE_NM",
+		"MSFRTN_TY_CD","FILE_TY", "FILE_KOR_NM", "MAP_NM"
+		)
+		VALUES (
+		#{datasetId},
+		#{datasetNm}, #{ltopCrdntX}, #{ltopCrdntY},
+		#{rtopCrdntX},
+		#{rtopCrdntY}, #{lbtmCrdntX}, #{lbtmCrdntY},
+		#{rbtmCrdntX},
+		#{rbtmCrdntY}, #{mapPrjctnCn}, #{msfrtnTyNm},
+		#{datasetCoursNm},
+		#{roiYn}, #{uploadDt}::Date, #{msfrtnId},
+		#{dataCd},
+		#{addr}, #{fileNm},
+		#{msfrtnTyCd}, #{fileTy}, #{fileKorNm}, #{mapNm}
+		)
+		]]>
+	</insert>
+	
+	
+	<update id="updateDatasetRlsTy" parameterType="hashmap">
+		UPDATE
+		"TN_DATASET_INFO" 
+		SET
+			"RLS_TY" = #{rlsTy},
+			"FILE_KOR_NM" = #{fileKorNm}
+			
+		WHERE "DATASET_ID" = #{datasetId}
+	</update>
+	
+	<!-- 데이터 코드 조회-->
+	<select id="selectDataCode"  resultType="ugis.service.vo.DataCodeVO">
+		SELECT * 
+		FROM "TN_DATA_CODE"
+		WHERE "DATA_CD" LIKE 'BT%'
+		
+	</select>
+	
+	
+	<select id="selectFileNm" parameterType="hashmap"
+		resultType="egovMap">
+		SELECT "FILE_NM","FILE_KOR_NM" FROM
+		"TN_DATASET_INFO" WHERE
+		"DATASET_ID" = ${datasetId}
+	</select>
+	
+	
+	
+	<insert id="insertDataset"
+		parameterType="ugis.service.vo.CMSC003VO3">
+		<selectKey keyProperty="datasetId" resultType="int"
+			order="BEFORE">
+			SELECT COALESCE(MAX("DATASET_ID"), 0) + 1 FROM
+			"TN_DATASET"
+		</selectKey>
+		INSERT INTO "TN_DATASET"
+		(
+		"DATASET_ID",
+		"VIDO_ID",
+		"MSFRTN_INFO_COLCT_REQUST_ID",
+		"DATA_KIND"
+		)
+		VALUES(
+		#{datasetId},
+		#{vidoId},
+		#{msfrtnInfoColctRequstId},
+		#{dataKind}
+		);
+	</insert>
+
+	<select id="selectDatasetById" parameterType="String"
+		resultType="egovMap">
+		SELECT * FROM
+		"TN_DATASET" WHERE
+		"MSFRTN_INFO_COLCT_REQUST_ID" = '${value}'
+	</select>
+
+	<delete id="deleteAllDatasetById" parameterType="String">
+		DELETE FROM
+		"TN_DATASET"
+		WHERE
+		"MSFRTN_INFO_COLCT_REQUST_ID" = '${value}'
+	</delete>
+
+	<delete id="deleteUsgsGfraByVidoId" parameterType="int">
+		DELETE FROM
+		"TN_USGS"
+		WHERE
+		"VIDO_ID" = ${value}
+		AND
+		"POTOGRF_VIDO_CD" IN('7','8','9')
+	</delete>
+
+	<delete id="deleteUsgsMetaByVidoId" parameterType="int">
+		DELETE FROM
+		"TN_USGS_META"
+		WHERE
+		"VIDO_ID" = ${value}
+	</delete>
+
+	<select id="selectUsgsWorByVidoId" parameterType="int"
+		resultType="egovMap">
+		SELECT * FROM
+		"TN_USGS_WORK" WHERE
+		"VIDO_ID" = ${value}
+	</select>
+
+	<select id="selectDatasetByDisasterId"
+		parameterType="ugis.service.vo.CMSC003VO3" resultType="egovMap">
+		<if test="dataKind == 1">
+			<!-- 수집영상 -->
+			<![CDATA[
+				SELECT A.*, B.*, C."MAP_PRJCTN_CN"
+				FROM "TN_DATASET" A
+				INNER
+				JOIN "TN_USGS" B ON (B."VIDO_ID" = A."VIDO_ID")
+				INNER JOIN
+				"TN_USGS_META" C ON (B."VIDO_ID" = C."VIDO_ID")
+				WHERE
+				"MSFRTN_INFO_COLCT_REQUST_ID" = #{msfrtnInfoColctRequstId}
+				AND B."POTOGRF_VIDO_CD" IN('7','8')
+				AND B."POTOGRF_BEGIN_DT" >= #{dateFrom}::TIMESTAMP AND B."POTOGRF_END_DT"  <  #{dateTo}::TIMESTAMP+INTERVAL '1 day'
+			 ]]>
+			ORDER BY B."INNER_FILE_COURS_NM"
+		</if>
+		<if test="dataKind == 2">
+			<!-- 처리데이터 -->
+	   	<![CDATA[
+		   	 SELECT A.*, B."MAP_PRJCTN_CN"
+			  FROM "TN_USGS_WORK" AS A
+			  JOIN "TN_USGS_META" AS B ON A."VIDO_ID" = B."VIDO_ID"
+			  WHERE  A."POTOGRF_BEGIN_DT" >= #{dateFrom}::timestamp AND A."POTOGRF_END_DT"  <  #{dateTo}::timestamp+interval '1 day'
+			  AND A."POTOGRF_VIDO_CD" IN('7','8')
+			  ]]>
+			ORDER BY A."INNER_FILE_COURS_NM"
+		</if>
+	</select>
+
+
+	<select id="selectDatasetAirByDisasterId"
+		parameterType="ugis.service.vo.CMSC003VO3" resultType="egovMap">
+		<if test="dataKind == 1">
+			<!-- 수집영상 -->
+			<![CDATA[
+				SELECT A.*, B.*, C."MAP_PRJCTN_CN"
+				FROM "TN_DATASET" A
+				INNER
+				JOIN "TN_USGS" B ON (B."VIDO_ID" = A."VIDO_ID")
+				INNER JOIN
+				"TN_USGS_META" C ON (B."VIDO_ID" = C."VIDO_ID")
+				WHERE
+				"MSFRTN_INFO_COLCT_REQUST_ID" = #{msfrtnInfoColctRequstId}
+				AND B."POTOGRF_VIDO_CD" = '7'
+				AND B."POTOGRF_BEGIN_DT" >= #{dateFrom}::TIMESTAMP AND B."POTOGRF_END_DT"  <  #{dateTo}::TIMESTAMP+INTERVAL '1 day'
+			 ]]>
+			ORDER BY B."INNER_FILE_COURS_NM"
+		</if>
+		<if test="dataKind == 2">
+			<!-- 처리데이터 -->
+	   	<![CDATA[
+		   	 SELECT A.*, B."MAP_PRJCTN_CN"
+			  FROM "TN_USGS_WORK" AS A
+			  JOIN "TN_USGS_META" AS B ON A."VIDO_ID" = B."VIDO_ID"
+			  WHERE  A."POTOGRF_BEGIN_DT" >= #{dateFrom}::timestamp AND A."POTOGRF_END_DT"  <  #{dateTo}::timestamp+interval '1 day'
+			  AND A."POTOGRF_VIDO_CD" = '7'
+			  ]]>
+			ORDER BY A."INNER_FILE_COURS_NM"
+		</if>
+	</select>
+
+
+	<select id="selectDatasetOrtByDisasterId"
+		parameterType="ugis.service.vo.CMSC003VO3" resultType="egovMap">
+		<if test="dataKind == 1">
+			<!-- 수집영상 -->
+			<![CDATA[
+				SELECT A.*, B.*, C."MAP_PRJCTN_CN"
+				FROM "TN_DATASET" A
+				INNER
+				JOIN "TN_USGS" B ON (B."VIDO_ID" = A."VIDO_ID")
+				INNER JOIN
+				"TN_USGS_META" C ON (B."VIDO_ID" = C."VIDO_ID")
+				WHERE
+				"MSFRTN_INFO_COLCT_REQUST_ID" = #{msfrtnInfoColctRequstId}
+				AND B."POTOGRF_VIDO_CD" = '8'
+				AND B."POTOGRF_BEGIN_DT" >= #{dateFrom}::TIMESTAMP AND B."POTOGRF_END_DT"  <  #{dateTo}::TIMESTAMP+INTERVAL '1 day'
+			 ]]>
+			ORDER BY B."INNER_FILE_COURS_NM"
+		</if>
+		<if test="dataKind == 2">
+			<!-- 처리데이터 -->
+	   	<![CDATA[
+		   	 SELECT A.*, B."MAP_PRJCTN_CN"
+			  FROM "TN_USGS_WORK" AS A
+			  JOIN "TN_USGS_META" AS B ON A."VIDO_ID" = B."VIDO_ID"
+			  WHERE  A."POTOGRF_BEGIN_DT" >= #{dateFrom}::timestamp AND A."POTOGRF_END_DT"  <  #{dateTo}::timestamp+interval '1 day'
+			  AND A."POTOGRF_VIDO_CD" = '8'
+			  ]]>
+			ORDER BY A."INNER_FILE_COURS_NM"
+		</if>
+	</select>
+
+
+
+	<select id="selectUsgsWorkCurrentAirList"
+		parameterType="cmsc003VO" resultType="egovMap">
+		SELECT usgs.*,
+		usgs_meta."MAP_PRJCTN_CN",
+		usgs_meta."BAND_CN",
+		#{disasterType} AS disasterType,
+		#{dateFrom} AS dateFrom,
+		#{dateTo} AS
+		dateTo
+		FROM "TN_USGS_WORK" AS usgs
+		JOIN "TN_USGS_META" AS usgs_meta
+		on
+		usgs."VIDO_ID" = usgs_meta."VIDO_ID"
+		<where>
+			<![CDATA[ AND (usgs."POTOGRF_VIDO_CD" = '7') ]]>
+			<if test="dateFrom != ''">
+			<![CDATA[
+				AND (usgs."POTOGRF_BEGIN_DT" >= #{dateFrom}::timestamp)
+				]]>
+			</if>
+			<if test="dateTo != ''">
+			<![CDATA[
+				AND (usgs."POTOGRF_END_DT" <= #{dateTo}::timestamp)
+				]]>
+			</if>
+			<![CDATA[
+				AND (
+					  (
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:4326'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:32652'
+					)
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5179'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5186'
+					)
+				)
+			]]>
+		</where>
+		ORDER BY usgs."INNER_FILE_COURS_NM"
+	</select>
+
+	<select id="selectUsgsWorkCurrentOrtList"
+		parameterType="cmsc003VO" resultType="egovMap">
+		SELECT usgs.*,
+		usgs_meta."MAP_PRJCTN_CN",
+		usgs_meta."BAND_CN",
+		#{disasterType} AS disasterType,
+		#{dateFrom} AS dateFrom,
+		#{dateTo} AS
+		dateTo
+		FROM "TN_USGS_WORK" AS usgs
+		JOIN "TN_USGS_META" AS usgs_meta
+		on
+		usgs."VIDO_ID" = usgs_meta."VIDO_ID"
+		<where>
+			<![CDATA[ AND (usgs."POTOGRF_VIDO_CD" = '8') ]]>
+			<if test="dateFrom != ''">
+			<![CDATA[
+				AND (usgs."POTOGRF_BEGIN_DT" >= #{dateFrom}::timestamp)
+				]]>
+			</if>
+			<if test="dateTo != ''">
+			<![CDATA[
+				AND (usgs."POTOGRF_END_DT" <= #{dateTo}::timestamp)
+				]]>
+			</if>
+			<![CDATA[
+				AND (
+					  (
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:4326'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:32652'
+					)
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5179'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5186'
+					)
+				)
+			]]>
+		</where>
+		ORDER BY usgs."INNER_FILE_COURS_NM"
+	</select>
+
+	<select id="selectUsgsWorkCurrentDemList"
+		parameterType="cmsc003VO" resultType="egovMap">
+		SELECT usgs.*,
+		usgs_meta."MAP_PRJCTN_CN",
+		usgs_meta."BAND_CN",
+		#{disasterType} AS disasterType,
+		#{dateFrom} AS dateFrom,
+		#{dateTo} AS
+		dateTo
+		FROM "TN_USGS_WORK" AS usgs
+		JOIN "TN_USGS_META" AS usgs_meta
+		on
+		usgs."VIDO_ID" = usgs_meta."VIDO_ID"
+		<where>
+			<![CDATA[ AND (usgs."POTOGRF_VIDO_CD" = '9') ]]>
+			<if test="dateFrom != ''">
+			<![CDATA[
+				AND (usgs."POTOGRF_BEGIN_DT" >= #{dateFrom}::timestamp)
+				]]>
+			</if>
+			<if test="dateTo != ''">
+			<![CDATA[
+				AND (usgs."POTOGRF_END_DT" <= #{dateTo}::timestamp)
+				]]>
+			</if>
+			<![CDATA[
+				AND (
+					  (
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:4326'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:32652'
+					)
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5179'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5186'
+					)
+				)
+			]]>
+		</where>
+		ORDER BY usgs."INNER_FILE_COURS_NM"
+	</select>
+
+	<insert id="insertMsfrtnDataset" parameterType="cmsc003VO4">
+		<selectKey keyProperty="msfrtnDatasetId"
+			resultType="integer" order="BEFORE">
+			SELECT COALESCE(MAX("MSFRTN_DATASET_ID"),
+			0) + 1 FROM
+			"TN_MSFRTN_DATASET"
+		</selectKey>
+		<![CDATA[
+		INSERT INTO	"TN_MSFRTN_DATASET" (
+			"MSFRTN_DATASET_ID", "MSFRTN_ID", "DATASET_COURS_NM", "DATASET_NM"
+		)
+		VALUES (
+			#{msfrtnDatasetId}, #{msfrtnId}, #{datasetCoursNm}, #{datasetNm}
+		)
+		]]>
+	</insert>
+
+	<select id="selectMsfrtnDataset" resultType="egovMap"
+		parameterType="cmsc003VO4">
+		SELECT * FROM "TN_MSFRTN_DATASET"
+		WHERE "MSFRTN_ID" =
+		#{msfrtnId}
+	</select>
+
+	<delete id="deleteMsfrtnDataset" parameterType="cmsc003VO4">
+		DELETE FROM
+		"TN_MSFRTN_DATASET"
+		WHERE "MSFRTN_ID" = #{msfrtnId}
+	</delete>
+
+	<update id="updateMsfrtnDataset" parameterType="cmsc003VO4">
+		UPDATE
+		"TN_MSFRTN_DATASET" SET
+		"DATASET_NM" =
+		#{datasetNm}
+		WHERE
+		"MSFRTN_ID" =
+		#{msfrtnId}
+	</update>
+
+	<update id="updateDatasetInfo2" parameterType="cmsc003VO4">
+		UPDATE
+		"TN_DATASET_INFO" SET
+		"DATASET_NM" =
+		#{datasetNm}
+		WHERE
+		"MSFRTN_ID" =
+		#{msfrtnId}
+	</update>
+
+
+	<delete id="deleteDatasetInfo" parameterType="cmsc003VO4">
+		DELETE FROM
+		"TN_DATASET_INFO"
+		WHERE "MSFRTN_ID" = #{msfrtnId}
+	</delete>
+
+
+
+	<select id="selectSatelliteDatasetByDisasterId"
+		parameterType="cmsc003VO" resultType="egovMap">
+		<if test="dataType == 1">
+			<!-- 원본영상 -->
+			<![CDATA[
+				SELECT A.*, usgs.*, usgs_meta."MAP_PRJCTN_CN"
+				FROM "TN_DATASET" A
+				INNER
+				JOIN "TN_USGS" usgs ON (usgs."VIDO_ID" = A."VIDO_ID")
+				INNER JOIN
+				"TN_USGS_META" usgs_meta ON (usgs."VIDO_ID" = usgs_meta."VIDO_ID")
+				WHERE
+				"MSFRTN_INFO_COLCT_REQUST_ID" = #{disasterId}
+				AND usgs."POTOGRF_VIDO_CD" IN('0','1','2','6')
+			 ]]>
+			ORDER BY usgs."INNER_FILE_COURS_NM"
+		</if>
+		<if test="dataType == 3">
+			<!-- 처리데이터 -->
+			SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN"
+			FROM "TN_USGS_WORK" usgs
+			INNER JOIN
+			"TN_USGS_META" usgs_meta ON (usgs."VIDO_ID" =
+			usgs_meta."VIDO_ID")
+			WHERE
+			usgs."POTOGRF_VIDO_CD" IN('0','1','2','6')
+			AND (("MSFRTN_ID" = #{disasterId}) OR ("MSFRTN_ID" isNull
+	   		<![CDATA[
+				AND (
+					  (
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:4326'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:32652'
+					)
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5179'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5186'
+					)
+				)
+			  ]]>
+			))
+			ORDER BY usgs."INNER_FILE_COURS_NM"
+		</if>
+	</select>
+
+	<select id="selectDisaterDatasetByDisasterId"
+		parameterType="cmsc003VO" resultType="egovMap">
+		<if test="dataType == 1">
+			<!-- 원본영상 -->
+			<![CDATA[
+				SELECT A.*, B.*, C."MAP_PRJCTN_CN"
+				FROM "TN_DATASET" A
+				INNER
+				JOIN "TN_USGS" B ON (B."VIDO_ID" = A."VIDO_ID")
+				INNER JOIN
+				"TN_USGS_META" C ON (B."VIDO_ID" = C."VIDO_ID")
+				WHERE
+				"MSFRTN_INFO_COLCT_REQUST_ID" = #{disasterId}
+				AND B."POTOGRF_VIDO_CD" IN('3','4','5','10','20')
+			 ]]>
+			ORDER BY B."INNER_FILE_COURS_NM"
+		</if>
+		<if test="dataType == 3">
+			<!-- 처리데이터 -->
+	   		<![CDATA[
+	   			SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN"
+				FROM "TN_USGS_WORK" usgs
+				INNER JOIN
+				"TN_USGS_META" usgs_meta ON (usgs."VIDO_ID" = usgs_meta."VIDO_ID")
+				WHERE
+				usgs."POTOGRF_VIDO_CD" IN('3','4','5','10','20')
+				AND (("MSFRTN_ID" = #{disasterId}) OR ("MSFRTN_ID" isNull
+				AND (
+					  (
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:4326'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:32652'
+					)
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5179'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5186'
+					)
+				)))
+			  ]]>
+			ORDER BY usgs."INNER_FILE_COURS_NM"
+		</if>
+	</select>
+
+	<select id="selectAirDatasetByDisasterId"
+		parameterType="cmsc003VO" resultType="egovMap">
+		<if test="dataType == 1">
+			<!-- 원본영상 -->
+			<![CDATA[
+				SELECT A.*, B.*, C."MAP_PRJCTN_CN"
+				FROM "TN_DATASET" A
+				INNER
+				JOIN "TN_USGS" B ON (B."VIDO_ID" = A."VIDO_ID")
+				INNER JOIN
+				"TN_USGS_META" C ON (B."VIDO_ID" = C."VIDO_ID")
+				WHERE
+				"MSFRTN_INFO_COLCT_REQUST_ID" = #{disasterId}
+				AND B."POTOGRF_VIDO_CD" = '7'
+			 ]]>
+			ORDER BY B."INNER_FILE_COURS_NM"
+		</if>
+		<if test="dataType == 3">
+			<!-- 처리데이터 -->
+	   		<![CDATA[
+	   			SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN"
+				FROM "TN_USGS_WORK" usgs
+				INNER JOIN
+				"TN_USGS_META" usgs_meta ON (usgs."VIDO_ID" = usgs_meta."VIDO_ID")
+				WHERE
+				usgs."POTOGRF_VIDO_CD" = '7'
+				AND (("MSFRTN_ID" = #{disasterId}) OR ("MSFRTN_ID" isNull
+				AND (
+					  (
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:4326'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:32652'
+					)
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5179'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5186'
+					)
+				)))
+			  ]]>
+			ORDER BY usgs."INNER_FILE_COURS_NM"
+		</if>
+	</select>
+
+	<select id="selectOrtDatasetByDisasterId"
+		parameterType="cmsc003VO" resultType="egovMap">
+		<if test="dataType == 1">
+			<!-- 원본영상 -->
+			<![CDATA[
+				SELECT A.*, B.*, C."MAP_PRJCTN_CN"
+				FROM "TN_DATASET" A
+				INNER
+				JOIN "TN_USGS" B ON (B."VIDO_ID" = A."VIDO_ID")
+				INNER JOIN
+				"TN_USGS_META" C ON (B."VIDO_ID" = C."VIDO_ID")
+				WHERE
+				"MSFRTN_INFO_COLCT_REQUST_ID" = #{disasterId}
+				AND B."POTOGRF_VIDO_CD" = '8'
+			 ]]>
+			ORDER BY B."INNER_FILE_COURS_NM"
+		</if>
+		<if test="dataType == 3">
+			<!-- 처리데이터 -->
+	   		<![CDATA[
+	   			SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN"
+				FROM "TN_USGS_WORK" usgs
+				INNER JOIN
+				"TN_USGS_META" usgs_meta ON (usgs."VIDO_ID" = usgs_meta."VIDO_ID")
+				WHERE
+				usgs."POTOGRF_VIDO_CD" = '8'
+				AND (("MSFRTN_ID" = #{disasterId}) OR ("MSFRTN_ID" isNull
+				AND (
+					  (
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:4326'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:32652'
+					)
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5179'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5186'
+					)
+				)))
+			  ]]>
+			ORDER BY usgs."INNER_FILE_COURS_NM"
+		</if>
+	</select>
+
+	<select id="selectDemDatasetByDisasterId"
+		parameterType="cmsc003VO" resultType="egovMap">
+		<if test="dataType == 1">
+			<!-- 원본영상 -->
+			<![CDATA[
+				SELECT A.*, B.*, C."MAP_PRJCTN_CN"
+				FROM "TN_DATASET" A
+				INNER
+				JOIN "TN_USGS" B ON (B."VIDO_ID" = A."VIDO_ID")
+				INNER JOIN
+				"TN_USGS_META" C ON (B."VIDO_ID" = C."VIDO_ID")
+				WHERE
+				"MSFRTN_INFO_COLCT_REQUST_ID" = #{disasterId}
+				AND B."POTOGRF_VIDO_CD" = '9'
+			 ]]>
+			ORDER BY B."INNER_FILE_COURS_NM"
+		</if>
+		<if test="dataType == 3">
+			<!-- 처리데이터 -->
+	   		<![CDATA[
+	   			SELECT  usgs.*, usgs_meta."MAP_PRJCTN_CN"
+				FROM "TN_USGS_WORK" usgs 
+				INNER JOIN
+				"TN_USGS_META" usgs_meta ON (usgs."VIDO_ID" = usgs_meta."VIDO_ID")
+				WHERE
+				usgs."POTOGRF_VIDO_CD" = '9'
+				AND (("MSFRTN_ID" = #{disasterId}) OR ("MSFRTN_ID" isNull
+				AND (
+					  (
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{lry4326} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx4326} AS DOUBLE PRECISION)||' '||CAST(#{uly4326} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:4326'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{lry32652} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx32652} AS DOUBLE PRECISION)||' '||CAST(#{uly32652} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:32652'
+					)
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{lry5179} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5179} AS DOUBLE PRECISION)||' '||CAST(#{uly5179} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5179'
+					)					
+					OR(
+						ST_Intersects(
+							ST_GeomFromText('POLYGON(('
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."RBTM_CRDNT_X"||','
+								||usgs."RBTM_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||','
+								||usgs."LTOP_CRDNT_Y"||' '||usgs."LTOP_CRDNT_X"||'))'), 
+							ST_GeomFromText('POLYGON(('
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{lry5186} AS DOUBLE PRECISION)||','
+								||CAST(#{lrx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||','
+								||CAST(#{ulx5186} AS DOUBLE PRECISION)||' '||CAST(#{uly5186} AS DOUBLE PRECISION)||'))')
+						) 
+						AND usgs_meta."MAP_PRJCTN_CN"='EPSG:5186'
+					)
+				)))
+			  ]]>
+			ORDER BY usgs."INNER_FILE_COURS_NM"
+		</if>
+	</select>
+
+</mapper>
+
+

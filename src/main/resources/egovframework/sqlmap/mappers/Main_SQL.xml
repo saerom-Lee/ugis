@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="ugis.service.mapper.MainMapper">
+
+	<select id="selectRadarList" resultType="egovMap">	
+		SELECT vido_id
+		FROM "TN_AERO"
+	</select>
+	
+	<select id="selectFileDown" parameterType="map" resultType="egovMap">	
+		SELECT "FILE_NM", "FULL_FILE_COURS_NM"
+		FROM "TN_DATASET_INFO" tdi 
+		WHERE "MSFRTN_ID" = #{msfrtnId}
+		AND "FILE_NM" = #{fileNm}
+	</select>
+</mapper>

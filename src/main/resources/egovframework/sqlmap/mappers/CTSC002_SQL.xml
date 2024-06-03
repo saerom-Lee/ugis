@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="ugis.service.mapper.CTSC002Mapper">
+
+
+
+	<insert id="add" parameterType="ugis.service.vo.CTSC002VO">
+		<selectKey keyProperty="vidoId" resultType="int" order="BEFORE">
+			select coalesce(MAX("VIDO_ID"),0)+1 as vidoId  from  "TN_EMC"
+		</selectKey>
+		insert into "TN_EMC"
+		(
+		"VIDO_ID",
+		"ACQS_DT",
+		"STRE_COURS_NM",
+		"VIDO_NM",
+		"LTOP_CRDNT_X",
+		"LTOP_CRDNT_Y",
+		"RBTM_CRDNT_X",
+		"RBTM_CRDNT_Y",
+		"POTOGRF_BEGIN_DT",
+		"POTOGRF_END_DT",
+		"POTOGRF_VIDO_CD"
+
+		)
+		values
+		(
+		#{vidoId},
+		current_timestamp,
+		#{satlitVidoInnerPath},
+		#{vidoNm},
+        #{ltcr_x},
+		#{ltcr_y},
+		#{rtcr_x},
+		#{rtcr_y},
+		#{potogrfBeginDt}::timestamp ,
+		#{potogrfEndDt}::timestamp,
+		#{potogrfVidoCd}
+		);
+	</insert>
+	<select id="ctsc002_search"  parameterType="ugis.service.vo.CTSC002VO" resultType="ugis.service.vo.CTSC002VO">
+		<![CDATA[
+		select  "VIDO_NM"  as vidoNm,
+		       "ACQS_DT" as acqsDt ,
+		       "POTOGRF_VIDO_CD" as potogrfVidoCd
+		from "TN_EMC"
+		WHERE  "POTOGRF_BEGIN_DT" >= #{potogrfBeginDt}::timestamp AND "POTOGRF_END_DT"  <  #{potogrfEndDt}::timestamp+interval '1 day'
+		    ]]>
+			<include refid="where" />
+
+	</select>
+
+	<sql id="where">
+		<where>
+			<if test="vidoNmForSearch!= null and vidoNmForSearch != '' " >
+				and  vodiNm  = #{vidoNmForSearch}
+			</if>
+		</where>
+	</sql>
+
+
+
+</mapper>

@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="ugis.service.mapper.CTSC001Mapper">
+
+	<!-- <select id="selectRadarList" resultType="egovMap">
+		SELECT RADAR_ID
+		FROM RADAR
+	</select> -->
+
+	<select id="transform" resultType="string">
+		SELECT
+			ST_AsText(ST_Transform(ST_GeomFromText('LINESTRING(${ulx} ${uly}, ${lrx} ${lry})',5179),4326)) As wgs_geom
+	</select>
+	<update id="upt" parameterType="ugis.service.vo.CTSC001VO">
+		update  "TN_USGS" SET "FLAG"=#{flag} WHERE "VIDO_ID"=#{vidoId}
+	</update>
+
+	<select id="selectMaxVidoId" resultType="int">
+		SELECT coalesce(MAX("VIDO_ID"),0) as vidoId  from  "TN_USGS"
+	</select>
+
+
+	<insert id="usgsInsert" parameterType="ugis.service.vo.CTSC001VO">
+		<selectKey keyProperty="vidoId" resultType="int" order="BEFORE">
+			select coalesce(MAX("VIDO_ID"),0)+1 as vidoId  from  "TN_USGS"
+		</selectKey>
+		insert into "TN_USGS"
+		    ("VIDO_ID",
+		     "POTOGRF_BEGIN_DT",
+		     "POTOGRF_END_DT",
+		     "LTOP_CRDNT_X",
+		     "LTOP_CRDNT_Y",
+		     "RBTM_CRDNT_X",
+		     "RBTM_CRDNT_Y",
+		     "INNER_FILE_COURS_NM","EXTRL_FILE_COURS_NM","POTOGRF_VIDO_CD","VIDO_NM",
+		     "FLAG")
+				values (
+				#{vidoId},
+				#{potogrfBeginDt}::timestamp,
+				#{potogrfEndDt}::timestamp,
+				#{ulx},
+				#{uly},
+				#{lrx},
+				#{lry},
+				#{satlitVidoInnerPath},
+				#{satlitVidoExtrlPath},
+				#{potogrfVidoCd},
+				#{potogrf_vido_nm},
+				'0'
+				);
+	</insert>
+
+	<select id="select" resultType="egovMap">
+		SELECT
+			"POTOGRF_BEGIN_DT" as potogrfBeginDt ,
+			"POTOGRF_END_DT" as  potogrfEndDt ,
+		     "LTOP_CRDNT_X" as ulx ,
+				"LTOP_CRDNT_Y" as uly ,
+			"RBTM_CRDNT_X" as lrx,
+			"RBTM_CRDNT_Y" as lry,
+			"POTOGRF_VIDO_CD" as potogrfVidoCd,
+			"INNER_FILE_COURS_NM" as satlitVidoInnerPath,
+			"EXTRL_FILE_COURS_NM" as satlitVidoExtrlPath,
+			"VIDO_ID" as vidoId,
+			potogrf_vido_nm as potogrf_vido_nm
+			from
+				"TN_USGS"
+			WHERE "FLAG"=0
+	</select>
+	<select id="file_select" resultType="ugis.service.vo.CTSC001VO">
+		SELECT
+			"POTOGRF_BEGIN_DT" as potogrfBeginDt ,
+			"POTOGRF_END_DT" as  potogrfEndDt ,
+			"LTOP_CRDNT_X" as ulx ,
+			"LTOP_CRDNT_Y" as uly ,
+			"RBTM_CRDNT_X" as lrx,
+			"RBTM_CRDNT_Y" as lry,
+			"POTOGRF_VIDO_CD" as potogrfVidoCd,
+			"INNER_FILE_COURS_NM" as satlitVidoInnerPath,
+			"EXTRL_FILE_COURS_NM" as satlitVidoExtrlPath,
+			"VIDO_ID" as vidoId
+		from
+			"TN_USGS_TIME"
+		WHERE "FLAG" in('2','3')
+	</select>
+
+	<!--?섏쭛???곸긽???뚯씪紐낆쓣 ?낅젰?쒕떎. -->
+	<insert id="insert" parameterType="ugis.service.vo.CTSC001VO">
+		insert into "TN_USGS"
+		("VIDO_ID",
+		"LTOP_CRDNT_X",
+		"LTOP_CRDNT_Y",
+		 "RTOP_CRDNT_X",
+		 "RTOP_CRDNT_Y",
+		"LBTM_CRDNT_X",
+		"LBTM_CRDNT_Y",
+		"RBTM_CRDNT_X",
+		"RBTM_CRDNT_Y",
+
+		"INNER_FILE_COURS_NM","EXTRL_FILE_COURS_NM","POTOGRF_VIDO_CD","FLAG","VIDO_NM")
+		values (
+		#{vidoId},
+		#{lacnul},
+		#{locnul},
+		#{lacnur},
+		#{locnur},
+		#{lacnll},
+		#{lacnll},
+		#{lacnlr},
+		#{lacnlr},
+		#{satlitVidoInnerPath},
+		#{satlitVidoExtrlPath},
+		#{potogrfVidoCd},
+		'0',
+		#{vidoNm}
+		);
+	</insert>
+
+	<insert id="vidoinsertMeta" parameterType="ugis.service.vo.CTSC001VO">
+		insert into "TN_USGS_META"
+		("VIDO_ID",
+		 "RAW_SATLIT_VIDO_FILE_NM",
+		 "PRDCTN_NO",
+		 "ACQS_YR",
+		 "ACQS_MM",
+		 "TRACK_NO",
+		 "POTOGRF_MODE_NM",
+		 "ROLLANG_CO",
+		 "VIDO_SENSOR_NM",
+		 "MAP_PRJCTN_CN",
+		 "DATUM_CN",
+		 "SPHER_CN",
+		 "LA_CN_UL",
+		 "LO_CN_UL",
+		 "LA_CN_UR",
+		 "LO_CN_UR",
+		 "LA_CN_LL",
+		 "LO_CN_LL",
+		 "LA_CN_LR",
+		 "LO_CN_LR",
+		 "BAND_CO",
+	     "BGNG_DT",
+		 "END_DT",
+		 "RESOLUTION",
+		 "CLOUD_COVER"
+		 )
+		values (
+		   #{vidoId},
+		   #{rawSatlitVidoFileNm},
+		   #{prdctnNo},
+		   #{acqsYr},
+		   #{acqsMm},
+		   #{trackNo},
+		   #{potogrfModeNm},
+		   #{rollangCo},
+		   #{vidoSensorNm},
+		   #{mapPrjctnCn},
+		   #{datumCn},
+		   #{spherCn},
+		   #{lacnul},
+		   #{locnul},
+		   #{lacnur},
+		   #{locnur},
+		   #{lacnll},
+		   #{locnll},
+		   #{lacnlr},
+		   #{locnlr},
+		   #{bandCo}::integer,
+		   #{bgngDt}::timestamp,
+		   #{endDt}::timestamp,
+		   #{resolution},
+		   #{cloud_cover});
+	</insert>
+
+	<insert id="insertTnUsgs" parameterType="ugis.service.vo.CTSC001VOInsertVO">
+		insert into "TN_USGS"
+		("VIDO_ID",
+		 "LTOP_CRDNT_X",
+		 "LTOP_CRDNT_Y",
+		 "RTOP_CRDNT_X",
+		 "RTOP_CRDNT_Y",
+		 "LBTM_CRDNT_X",
+		 "LBTM_CRDNT_Y",
+		 "RBTM_CRDNT_X",
+		 "RBTM_CRDNT_Y",
+		 "INNER_FILE_COURS_NM",
+		 "POTOGRF_VIDO_CD",
+		 "FLAG",
+		 "VIDO_NM")
+		values (
+				   #{VIDO_ID},
+				   #{LO_CN_UL}::double precision,
+				   #{LA_CN_UL}::double precision,
+				   #{LO_CN_UR}::double precision,
+				   #{LA_CN_UR}::double precision,
+				   #{LO_CN_LL}::double precision,
+				   #{LA_CN_LL}::double precision,
+				   #{LO_CN_LR}::double precision,
+				   #{LA_CN_LR}::double precision,
+				   #{IINNER_FILE_COURS_NM},
+				   #{potogrfVidoCd},
+				   '0',
+				   #{vidoNm}
+			   );
+	</insert>
+	<insert id="insertUsgsMetaAll"
+			parameterType="ugis.service.vo.CTSC001VOInsertVO">
+		insert into "TN_USGS_META"
+		("VIDO_ID",
+		 "BGNG_DT",
+		 "END_DT",
+		 "MAP_PRJCTN_CN",
+		 "SPHER_CN",
+		 "ACQS_YR",
+		 "ACQS_MM",
+		 "LA_CN_UL",
+		 "LO_CN_UL",
+		 "LA_CN_UR",
+		 "LO_CN_UR",
+		 "LA_CN_Cen",
+		 "LO_CN_Cen",
+		 "LA_CN_LL",
+		 "LO_CN_LL",
+		 "LA_CN_LR",
+		 "LO_CN_LR",
+		 "BAND_CO",
+		 "PRJCTN_CN",
+		 "DATUM_CN",
+		 "VIDO_SENSOR_NM",
+		 "SENSOR_MODEL_NM",
+		 "POTOGRF_BEGIN_DT",
+		 "POTOGRF_END_DT",
+		 "TRACK_NO",
+		 "POTOGRF_MODE_NM",
+		 "ROLLANG_CO",
+		 "PITCHANG_CO",
+		 "PRDCTN_NO",
+		 "RAW_SATLIT_VIDO_FILE_NM",
+		 "SATLIT_VIDO_FILE_NM",
+		 "SATLIT_VIDO_HDER_FILE_NM",
+		 "SATLIT_VIDO_SUMRY_FILE_NM",
+		 "STEREO_VIDO_FILE_NM",
+		 "REG_DT",
+		 "MDFCN_DT",
+		 "USE_RSTRCT_CN",
+		 "RESOLUTION",
+		 "CLOUD_COVER")
+		values (
+				   #{VIDO_ID} ,
+				   #{BGNG_DT}::timestamp,
+				   #{END_DT}::timestamp,
+				   #{MAP_PRJCTN_CN},
+				   #{SPHER_CN},
+				   #{ACQS_YR},
+				   #{ACQS_MM},
+				   #{LA_CN_UL},
+				   #{LO_CN_UL},
+				   #{LA_CN_UR},
+				   #{LO_CN_UR},
+				   #{LA_CN_Cen},
+				   #{LO_CN_Cen},
+				   #{LA_CN_LL},
+				   #{LO_CN_LL},
+				   #{LA_CN_LR},
+				   #{LO_CN_LR},
+				   #{ BAND_CO},
+				   #{PRJCTN_CN},
+				   #{DATUM_CN},
+				   #{VIDO_SENSOR_NM},
+				   #{SENSOR_MODEL_NM},
+				   #{POTOGRF_BEGIN_DT}::timestamp,
+				   #{POTOGRF_END_DT}::timestamp,
+				   #{TRACK_NO},
+				   #{POTOGRF_MODE_NM},
+				   #{ROLLANG_CO}::text,
+				   #{PITCHANG_CO}::double precision,
+				   #{PRDCTN_NO}::double precision,
+				   #{RAW_SATLIT_VIDO_FILE_NM},
+				   #{SATLIT_VIDO_FILE_NM},
+				   #{SATLIT_VIDO_HDER_FILE_NM},
+				   #{SATLIT_VIDO_SUMRY_FILE_NM},
+				   #{STEREO_VIDO_FILE_NM},
+				   #{REG_DT}::timestamp,
+				   #{MDFCN_DT}::timestamp,
+				   #{USE_RSTRCT_CN},
+				   #{Resolution},
+				   #{Cloud_Cover});
+	</insert>
+
+	<insert id="insertTnUsgsEssential" parameterType="ugis.service.vo.CTSC001VOInsertVO">
+		insert into "TN_USGS"
+		("VIDO_ID",
+		 "POTOGRF_BEGIN_DT",
+		 "POTOGRF_END_DT",
+		 "LTOP_CRDNT_X",
+		 "LTOP_CRDNT_Y",
+		 "RBTM_CRDNT_X",
+		 "RBTM_CRDNT_Y",
+		 "INNER_FILE_COURS_NM",
+		 "POTOGRF_VIDO_CD")
+		values (
+				   #{VIDO_ID},
+				   #{BGNG_DT}::timestamp,
+				   #{END_DT}::timestamp,
+				   #{LA_CN_UL}::double precision,
+				   #{LO_CN_UL}::double precision,
+				   #{LA_CN_LR}::double precision,
+				   #{LO_CN_LR}::double precision,
+				   #{IINNER_FILE_COURS_NM},
+				   #{potogrfVidoCd}
+			   );
+	</insert>
+
+	<insert id="insertUsgsMetaEssential"
+			parameterType="ugis.service.vo.CTSC001VOInsertVO">
+		insert into "TN_USGS_META"
+		("VIDO_ID",
+		 "MAP_PRJCTN_CN")
+		values (#{VIDO_ID} ,
+				#{PRJCTN_CN});
+	</insert>
+
+</mapper>

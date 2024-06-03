@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="ugis.service.mapper.CISC017Mapper">
+
+	<select id="selectThChngeDetctList"
+		resultType="ugis.service.vo.CISC017VO$ChangeDetctRsltListRes">
+		SELECT "CHNGE_DETCT_RESULT_ID"
+		, "STDR_VIDO_ID"
+		,
+		"PROGRS_STTUS_CD"
+		, "STRE_YN"
+		FROM "TH_CHNGE_DETCT"
+		WHERE
+		"PROGRS_STTUS_CD" = '444'
+	</select>
+
+	<select id="selectThChngeDetctRsltList"
+		resultType="ugis.service.vo.CISC017VO$ChangeDetctRsltListRes">
+		SELECT A."CHNGE_DETCT_RESULT_ID"
+		, A."PROGRS_STTUS_CD"
+		,
+		A."STRE_YN"
+		, B."CHNGE_DETCT_VIDO_RESULT_ID"
+		, B."VIDO_ID"
+		, B."VIDO_NM"
+		, B."INNER_FILE_COURS_NM"
+		, B."EXTRL_FILE_COURS_NM"
+		, B."FILE_NM"
+		,
+		B."ALL_FILE_NM"
+		, B."FILE_COURS_NM"
+		, B."FILE_SIZE"
+		, B."FILE_EXTSN_NM"
+		,
+		B."THUMB_VIDO_NM"
+		, B."THUMB_VIDO_COURS_NM"
+		, B."VECTOR_FILE_NM"
+		,
+		B."VECTOR_FILE_COURS_NM"
+		, B."RESULT_VIDO_YN"
+		, C."MAP_PRJCTN_CN"
+		,
+		D."LTOP_CRDNT_X"
+		, D."LTOP_CRDNT_Y"
+		, D."RBTM_CRDNT_X"
+		, D."RBTM_CRDNT_Y"
+		FROM "TH_CHNGE_DETCT" A
+		INNER JOIN "TH_CHNGE_DETCT_VIDO_RESULT" B ON
+		(B."CHNGE_DETCT_RESULT_ID" =
+		A."CHNGE_DETCT_RESULT_ID")
+		INNER JOIN
+		"TN_USGS_META" C ON (B."VIDO_ID" = C."VIDO_ID")
+		INNER JOIN "TN_USGS" D
+		ON (B."VIDO_ID" = D."VIDO_ID")
+		WHERE A."PROGRS_STTUS_CD" = '444'
+		AND
+		B."RESULT_VIDO_YN" = 'Y'
+		ORDER BY B."CHNGE_DETCT_VIDO_RESULT_ID" DESC
+	</select>
+
+	<select id="selectThChngeDetctRsltWorkList"
+		resultType="ugis.service.vo.CISC017VO$ChangeDetctRsltListRes">
+		SELECT
+		A."CHNGE_DETCT_RESULT_ID"
+		, A."PROGRS_STTUS_CD"
+		,
+		A."STRE_YN"
+		, B."CHNGE_DETCT_VIDO_RESULT_ID"
+		, B."VIDO_ID"
+		, B."VIDO_NM"
+		, B."INNER_FILE_COURS_NM"
+		, B."EXTRL_FILE_COURS_NM"
+		, B."FILE_NM"
+		,
+		B."ALL_FILE_NM"
+		, B."FILE_COURS_NM"
+		, B."FILE_SIZE"
+		, B."FILE_EXTSN_NM"
+		,
+		B."THUMB_VIDO_NM"
+		, B."THUMB_VIDO_COURS_NM"
+		, B."VECTOR_FILE_NM"
+		,
+		B."VECTOR_FILE_COURS_NM"
+		, B."RESULT_VIDO_YN"
+		, C."MAP_PRJCTN_CN"
+		,
+		D."LTOP_CRDNT_X"
+		, D."LTOP_CRDNT_Y"
+		, D."RBTM_CRDNT_X"
+		, D."RBTM_CRDNT_Y"
+		FROM "TH_CHNGE_DETCT" A
+		INNER JOIN "TH_CHNGE_DETCT_VIDO_RESULT" B ON
+		(B."CHNGE_DETCT_RESULT_ID" =
+		A."CHNGE_DETCT_RESULT_ID")
+		INNER JOIN
+		"TN_USGS_META" C ON (B."VIDO_ID" = C."VIDO_ID")
+		INNER JOIN
+		"TN_USGS_WORK" D ON (B."VIDO_ID" = D."VIDO_ID")
+		WHERE
+		A."PROGRS_STTUS_CD" = '444'
+		AND B."RESULT_VIDO_YN" = 'Y'
+		ORDER BY
+		B."CHNGE_DETCT_VIDO_RESULT_ID" DESC
+	</select>
+
+
+
+	<select id="selectThChngeDetctVectorList"
+		resultType="ugis.service.vo.CISC017VO$ChangeDetctRsltListRes">
+		SELECT A."CHNGE_DETCT_RESULT_ID"
+		,
+		B."CHNGE_DETCT_VIDO_RESULT_ID"
+		, B."VECTOR_FILE_NM"
+		,
+		B."VECTOR_FILE_COURS_NM"
+		, B."VIDO_ID"
+		FROM "TH_CHNGE_DETCT" A
+		INNER JOIN
+		"TH_CHNGE_DETCT_VIDO_RESULT" B ON (B."CHNGE_DETCT_RESULT_ID" =
+		A."CHNGE_DETCT_RESULT_ID")
+		WHERE A."PROGRS_STTUS_CD" = '444'
+		AND
+		A."STRE_YN" = 'Y'
+		AND B."RESULT_VIDO_YN" = 'Y'
+		AND B."VECTOR_FILE_NM" IS
+		NOT NULL
+		ORDER BY B."CHNGE_DETCT_VIDO_RESULT_ID" DESC
+	</select>
+
+	<insert id="saveThChngeDetct"
+		parameterType="ugis.service.vo.CISC017VO$ThChngeDetct">
+		<selectKey keyProperty="chngeDetctResultId"
+			resultType="Long" order="BEFORE">
+			SELECT
+			NEXTVAL('"TH_CHNGE_DETCT_CHNGE_DETCT_RESULT_ID_seq"') AS
+			chngeDetctResultId
+		</selectKey>
+		INSERT INTO "TH_CHNGE_DETCT"
+		(
+		"CHNGE_DETCT_RESULT_ID"
+		,
+		"CHNGE_DETCT_ALGRTH_CD"
+		, "STDR_VIDO_ID"
+		, "CVA_PT"
+		, "PROGRS_STTUS_CD"
+		,
+		"STRE_YN"
+		)
+		VALUES
+		(
+		#{chngeDetctResultId}
+		, #{chngeDetctAlgrthCd}
+		,
+		#{stdrVidoId}
+		, #{cvaPt}
+		, '441'
+		, 'N'
+		)
+	</insert>
+
+	<insert id="saveThChngeDetctResult"
+		parameterType="ugis.service.vo.CISC017VO$ThChngeDetctVidoResult">
+		INSERT INTO "TH_CHNGE_DETCT_VIDO_RESULT"
+		(
+		"CHNGE_DETCT_RESULT_ID"
+		, "CHNGE_DETCT_VIDO_RESULT_ID"
+		, "VIDO_ID"
+		,
+		"VIDO_NM"
+		, "INNER_FILE_COURS_NM"
+		, "EXTRL_FILE_COURS_NM"
+		,
+		"RESULT_VIDO_YN"
+		)
+		VALUES
+		(
+		#{chngeDetctResultId}
+		, (SELECT
+		NEXTVAL('"TH_CHNGE_DETCT_VIDO_RESULT_CHNGE_DETCT_VIDO_RESULT_ID_seq"'))
+		, #{vidoId}
+		, #{vidoNm}
+		, #{innerFileCoursNm}
+		, #{extrlFileCoursNm}
+		, 'N'
+		)
+	</insert>
+
+	<update id="updateThChngeDetctStreYn"
+		parameterType="ugis.service.vo.CISC017VO$ThChngeDetct">
+		UPDATE "TH_CHNGE_DETCT"
+		SET "STRE_YN" = 'Y'
+		WHERE
+		"CHNGE_DETCT_RESULT_ID" = #{chngeDetctResultId}
+	</update>
+
+	<update id="deleteVector"
+		parameterType="ugis.service.vo.CISC017VO$ThChngeDetctVidoResult">
+		UPDATE "TH_CHNGE_DETCT_VIDO_RESULT"
+		SET "VECTOR_FILE_NM"
+		= NULL
+		, "VECTOR_FILE_COURS_NM" = NULL
+		WHERE "CHNGE_DETCT_RESULT_ID" =
+		#{chngeDetctResultId}
+		AND "CHNGE_DETCT_VIDO_RESULT_ID" =
+		#{chngeDetctVidoResultId}
+	</update>
+
+</mapper>

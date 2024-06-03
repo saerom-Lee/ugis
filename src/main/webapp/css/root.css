@@ -1,0 +1,31 @@
+
+/* Bootstrap Main Css File (unedited) */
+@import url('bootstrap.css');
+
+/* Theme Style */
+@import url('style.css');
+
+/* Datepicker Style */
+@import url('datepicker.css');
+
+/* Responsive Style */
+@import url('responsive.css');
+
+/* Shortcuts Css Codes */
+@import url('shortcuts.css');
+
+/* Summernote */
+@import url('plugin/summernote/summernote.css');
+@import url('plugin/summernote/summernote-bs3.css');
+
+/* Sweet Alert */
+@import url('plugin/sweet-alert/sweet-alert.css');
+
+/* Data Tables */
+@import url('plugin/datatables/datatables.css');
+
+/* Date Range Picker */
+@import url('plugin/date-range-picker/daterangepicker-bs3.css');
+
+/* Full Calendar */
+@import url('plugin/fullcalendar/fullcalendar.css');

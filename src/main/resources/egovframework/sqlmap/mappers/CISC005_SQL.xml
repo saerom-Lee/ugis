@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="ugis.service.mapper.CISC005Mapper">
+
+	<resultMap id="sateResultList"
+		type="ugis.service.vo.CISC005VO">
+		<result property="vidoId" column="VIDO_ID" />
+		<result property="potogrfBeginDt" column="POTOGRF_BEGIN_DT" />
+		<result property="potogrfEndDt" column="POTOGRF_END_DT" />
+		<result property="ltopCrdntX" column="LTOP_CRDNT_X" />
+		<result property="ltopCrdntY" column="LTOP_CRDNT_Y" />
+		<result property="rbtmCrdntX" column="RBTM_CRDNT_X" />
+		<result property="rbtmCrdntY" column="RBTM_CRDNT_Y" />
+		<result property="innerFileCoursNm"
+			column="INNER_FILE_COURS_NM" />
+		<result property="potogrfVidoCd" column="POTOGRF_VIDO_CD" />
+		<result property="mapPrjctnCn" column="MAP_PRJCTN_CN" />
+
+	</resultMap>
+
+	<!-- 국가위성 -->
+	<select id="selectSoilSatList" resultType="egovMap"
+		parameterType="map" resultMap="sateResultList">
+		<if test="dataKind == null or dataKind == '' or dataKind == 1">
+	 	<![CDATA[
+	     SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN" FROM "TN_USGS" as usgs join "TN_USGS_META" as usgs_meta on usgs."VIDO_ID"  = usgs_meta."VIDO_ID" WHERE
+	     usgs."POTOGRF_BEGIN_DT" >= #{date1}::timestamp AND usgs."POTOGRF_END_DT"  <  #{date2}::timestamp+interval '1 day' AND "POTOGRF_VIDO_CD" = '0'
+	     ]]>
+		</if>
+		<if test="dataKind == 2">
+     	<![CDATA[
+	     SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN" FROM "TN_USGS_WORK" as usgs join "TN_USGS_META" as usgs_meta on usgs."VIDO_ID"  = usgs_meta."VIDO_ID" WHERE
+	     usgs."POTOGRF_BEGIN_DT" >= #{date1}::timestamp AND usgs."POTOGRF_END_DT"  <  #{date2}::timestamp+interval '1 day' AND "POTOGRF_VIDO_CD" = '0'
+	     ]]>
+		</if>
+		ORDER BY usgs."INNER_FILE_COURS_NM"
+	</select>
+	<!-- 기타위성 -->
+	<select id="selectEtcSatList" resultType="egovMap"
+		parameterType="map" resultMap="sateResultList">
+		<if test="dataKind == null or dataKind == '' or dataKind == 1">
+	    	<![CDATA[
+		        SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN" 
+		          FROM "TN_USGS" as usgs join "TN_USGS_META" as usgs_meta on usgs."VIDO_ID"  = usgs_meta."VIDO_ID" 
+		          WHERE  usgs."POTOGRF_BEGIN_DT" >= #{date1}::timestamp AND usgs."POTOGRF_END_DT"  <  #{date2}::timestamp+interval '1 day' 
+		          AND "POTOGRF_VIDO_CD" IN('1','2','6')
+	        ]]>
+		</if>
+		<if test="dataKind == 2">
+	    	<![CDATA[
+		        SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN" 
+		          FROM "TN_USGS_WORK" as usgs join "TN_USGS_META" as usgs_meta on usgs."VIDO_ID"  = usgs_meta."VIDO_ID" 
+		          WHERE  usgs."POTOGRF_BEGIN_DT" >= #{date1}::timestamp AND usgs."POTOGRF_END_DT"  <  #{date2}::timestamp+interval '1 day' 
+		          AND "POTOGRF_VIDO_CD" IN('1','2','6')
+	        ]]>
+		</if>
+
+		<if test="sResolution != null and sResolution != ''">
+			<![CDATA[
+			AND (
+			usgs_meta."RESOLUTION" >= #{sResolution}::FLOAT AND  usgs_meta."RESOLUTION" <= #{eResolution}::FLOAT
+			)
+			]]>
+		</if>
+		<if test="cloud != null and cloud != ''">
+			<![CDATA[
+			AND usgs_meta."CLOUD_COVER" <= #{cloud}::FLOAT
+			]]>
+		</if>
+	</select>
+
+	<!-- 항공영상 -->
+	<select id="selectAeroSatList" resultType="egovMap"
+		parameterType="map" resultMap="sateResultList">
+    <![CDATA[
+        SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN" FROM "TN_USGS" as usgs join "TN_USGS_META" as usgs_meta on usgs."VIDO_ID"  = usgs_meta."VIDO_ID" WHERE 
+        usgs."POTOGRF_BEGIN_DT" >= #{date1}::timestamp AND usgs."POTOGRF_END_DT"  <  #{date2}::timestamp+interval '1 day' AND "POTOGRF_VIDO_CD" IN('3','4','5')
+        ]]>
+	</select>
+
+	<select id="selectAbsSatList" resultType="egovMap"
+		parameterType="map" resultMap="sateResultList">
+    <![CDATA[
+        SELECT * FROM "TN_USGS" 
+        WHERE "POTOGRF_BEGIN_DT" >= #{date1}::timestamp AND "POTOGRF_END_DT" <= #{date2}::timestamp
+       ]]>
+
+		<foreach item="item" collection="sate_list" index="index"
+			open="AND (" separator="OR" close=")">
+			"POTOGRF_VIDO_CD" = #{item}
+		</foreach>
+	</select>
+
+	<select id="selectRelSatList" resultType="egovMap"
+		parameterType="map" resultMap="sateResultList">
+    <![CDATA[
+        SELECT * FROM "TN_USGS" 
+        WHERE "POTOGRF_BEGIN_DT" >= #{date1}::timestamp AND "POTOGRF_END_DT" <= #{date2}::timestamp
+       ]]>
+
+		<foreach item="item" collection="sate_list" index="index"
+			open="AND (" separator="OR" close=")">
+			"POTOGRF_VIDO_CD" = #{item}
+		</foreach>
+	</select>
+
+
+</mapper>

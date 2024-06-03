@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="ugis.service.mapper.CMSC001Mapper">
+
+	<insert id="signUpUser" parameterType="cmsc001VO">
+		INSERT INTO
+		"TN_USERS"("ID", "PASSWORD", "NAME", "ENABLED")
+		VALUES (#{id},
+		#{password}, #{name}, 1 )
+	</insert>
+
+	<select id="getUserById" parameterType="String"
+		resultType="cmsc001VO">
+		SELECT * FROM "TN_USERS" WHERE "ID" = #{id}
+	</select>
+
+	<update id="updateUserPwd" parameterType="cmsc001VO">
+		UPDATE "TN_USERS" SET
+		"PASSWORD" = #{password}
+		WHERE "ID" = #{id}
+	</update>
+
+</mapper>

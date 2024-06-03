@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="ugis.service.mapper.CTSC004Mapper">
+
+	<select id="selectTnHistList" resultType="egovMap">
+		<![CDATA[
+		select * 
+		from "TN_USGS_TIME" 
+		]]>
+		<if test='inqireBeginDate != null and inqireEndDate != null'>
+             <![CDATA[
+               where "POTOGRF_END_DT" between #{inqireBeginDate} and #{inqireEndDate}
+             ]]>
+        </if>
+        <if test='inqireBeginDate != null and inqireEndDate == null'>
+             <![CDATA[
+               where "POTOGRF_END_DT" >= #{inqireBeginDate}
+             ]]>
+        </if>
+        <if test='inqireBeginDate == null and inqireEndDate != null'>
+             <![CDATA[
+               where "POTOGRF_END_DT" <= #{inqireEndDate}
+             ]]>
+        </if>
+        <![CDATA[
+        	order by "VIDO_ID";
+        ]]>
+	</select>
+
+	<!-- 무료영상로그조회 -->
+	<select id="selectTnLogFree" resultType="egovMap">
+		<![CDATA[
+		select * 
+		from "TN_USGS" 
+		where "VIDO_ID" = #{vidoId}
+		]]>
+	</select>
+	<select id="selectTnLogEmer" resultType="egovMap">
+		<![CDATA[
+		select * from "TN_EMC"
+		]]>
+		<if test='inqireBeginDate != null and inqireEndDate != null'>
+             <![CDATA[
+               where "POTOGRF_END_DT" between #{inqireBeginDate} and #{inqireEndDate}
+             ]]>
+        </if>
+        <if test='inqireBeginDate != null and inqireEndDate == null'>
+             <![CDATA[
+               where "POTOGRF_END_DT" >= #{inqireBeginDate}
+             ]]>
+        </if>
+        <if test='inqireBeginDate == null and inqireEndDate != null'>
+             <![CDATA[
+               where "POTOGRF_END_DT" <= #{inqireEndDate}
+             ]]>
+        </if>
+        <![CDATA[
+        	order by "VIDO_ID";
+        ]]>
+	</select>
+	<!-- //긴급영상로그조회 -->
+	
+	<!-- 무료영상메타조회 -->
+	<select id="selectTnMetaFree" resultType="egovMap">
+	<![CDATA[
+		select * from "TN_USGS_META" where "VIDO_ID" = #{vidoId}; 
+		]]>
+	</select>
+	<!-- //무료영상메타조회 -->
+	
+</mapper>

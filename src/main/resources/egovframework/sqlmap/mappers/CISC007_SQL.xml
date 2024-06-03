@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+<mapper namespace="ugis.service.mapper.CISC007Mapper">
+
+	<!-- 국토위성 -->
+	<select id="selectAeroList" resultType="egovMap"
+		parameterType="map">
+    <![CDATA[
+        SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN" FROM "TN_USGS" as usgs join "TN_USGS_META" as usgs_meta on usgs."VIDO_ID"  = usgs_meta."VIDO_ID" WHERE 
+        usgs."POTOGRF_BEGIN_DT" >= #{date1}::timestamp AND usgs."POTOGRF_END_DT"  <  #{date2}::timestamp+interval '1 day' AND "POTOGRF_VIDO_CD" IN('3','4','5')
+        
+         
+        ]]>
+	</select>
+
+	<!-- 항공영상, 드론영상 -->
+	<select id="selectUsgsList" resultType="egovMap"
+		parameterType="map">
+
+		<if test="dataKind == null or dataKind == '' or dataKind == 1">
+			<!-- 수집영상 -->
+	 	<![CDATA[
+	     SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN", 
+	     	CASE WHEN "POTOGRF_VIDO_CD" = '1' THEN 'landsat'
+	             WHEN "POTOGRF_VIDO_CD" = '2' THEN 'komsat'
+	             WHEN "POTOGRF_VIDO_CD" = '3' THEN '홍수'
+	             WHEN "POTOGRF_VIDO_CD" = '4' THEN '산불'
+	             WHEN "POTOGRF_VIDO_CD" = '5' THEN '산사태'
+	             WHEN "POTOGRF_VIDO_CD" = '6' THEN '기타위성'
+	             WHEN "POTOGRF_VIDO_CD" = '7' THEN '항공영상'
+	            END AS vido_nm
+	     FROM "TN_USGS" as usgs join "TN_USGS_META" as usgs_meta on usgs."VIDO_ID"  = usgs_meta."VIDO_ID"
+	     WHERE  usgs."POTOGRF_BEGIN_DT" >= #{date1}::timestamp AND usgs."POTOGRF_END_DT"  <  #{date2}::timestamp+interval '1 day'
+	      ]]>
+			<if test="drone == 'drone' and air == 'air'">
+				AND "POTOGRF_VIDO_CD" IN('3','4','5', '7', '8')
+			</if>
+			<if test="drone == null and air == 'air'">
+				AND "POTOGRF_VIDO_CD" IN('7', '8')
+			</if>
+			<if test="drone == 'drone' and air == null">
+				AND "POTOGRF_VIDO_CD" IN('3','4','5')
+			</if>
+		</if>
+
+		<if test="dataKind == 2">
+			<!-- 처리데이터 -->
+	   	<![CDATA[
+	   	 SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN", CASE WHEN "POTOGRF_VIDO_CD" = '1' THEN 'landsat'
+		             WHEN "POTOGRF_VIDO_CD" = '2' THEN 'komsat'
+		             WHEN "POTOGRF_VIDO_CD" = '3' THEN '홍수'
+		             WHEN "POTOGRF_VIDO_CD" = '4' THEN '산불'
+		             WHEN "POTOGRF_VIDO_CD" = '5' THEN '산사태'
+		             WHEN "POTOGRF_VIDO_CD" = '6' THEN '기타위성'
+		             WHEN "POTOGRF_VIDO_CD" = '7' THEN '항공영상'
+		            END AS vido_nm
+		  FROM "TN_USGS_WORK" as usgs join "TN_USGS_META" as usgs_meta on usgs."VIDO_ID"  = usgs_meta."VIDO_ID"
+		  WHERE  usgs."POTOGRF_BEGIN_DT" >= #{date1}::timestamp AND usgs."POTOGRF_END_DT"  <  #{date2}::timestamp+interval '1 day'
+		  ]]>
+			<if test="drone == 'drone' and air == 'air'">
+				AND "POTOGRF_VIDO_CD" IN('3','4','5', '7', '8')
+			</if>
+			<if test="drone == null and air == 'air'">
+				AND "POTOGRF_VIDO_CD" IN('7', '8')
+			</if>
+			<if test="drone == 'drone' and air == null">
+				AND "POTOGRF_VIDO_CD" IN('3','4','5')
+			</if>
+		</if>
+		ORDER BY usgs."INNER_FILE_COURS_NM"
+	</select>
+
+	<!-- 항공영상 -->
+	<select id="selectUsgsAirList" resultType="egovMap"
+		parameterType="map">
+		<if test="air == 'air'">
+			<if test="dataKind == null or dataKind == '' or dataKind == 1">
+				<!-- 수집영상 -->
+	 	<![CDATA[
+	     SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN", 
+	     	CASE WHEN "POTOGRF_VIDO_CD" = '1' THEN 'landsat'
+	             WHEN "POTOGRF_VIDO_CD" = '2' THEN 'komsat'
+	             WHEN "POTOGRF_VIDO_CD" = '3' THEN '홍수'
+	             WHEN "POTOGRF_VIDO_CD" = '4' THEN '산불'
+	             WHEN "POTOGRF_VIDO_CD" = '5' THEN '산사태'
+	             WHEN "POTOGRF_VIDO_CD" = '6' THEN '기타위성'
+	             WHEN "POTOGRF_VIDO_CD" = '7' THEN '항공영상'
+	            END AS vido_nm
+	     FROM "TN_USGS" as usgs join "TN_USGS_META" as usgs_meta on usgs."VIDO_ID"  = usgs_meta."VIDO_ID"
+	     WHERE  usgs."POTOGRF_BEGIN_DT" >= #{date1}::timestamp AND usgs."POTOGRF_END_DT"  <  #{date2}::timestamp+interval '1 day'
+	      ]]>
+				AND "POTOGRF_VIDO_CD" IN('7','8')
+			</if>
+
+			<if test="dataKind == 2">
+				<!-- 처리데이터 -->
+	   	<![CDATA[
+	   	 SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN", CASE WHEN "POTOGRF_VIDO_CD" = '1' THEN 'landsat'
+		             WHEN "POTOGRF_VIDO_CD" = '2' THEN 'komsat'
+		             WHEN "POTOGRF_VIDO_CD" = '3' THEN '홍수'
+		             WHEN "POTOGRF_VIDO_CD" = '4' THEN '산불'
+		             WHEN "POTOGRF_VIDO_CD" = '5' THEN '산사태'
+		             WHEN "POTOGRF_VIDO_CD" = '6' THEN '기타위성'
+		             WHEN "POTOGRF_VIDO_CD" = '7' THEN '항공영상'
+		            END AS vido_nm
+		  FROM "TN_USGS_WORK" as usgs join "TN_USGS_META" as usgs_meta on usgs."VIDO_ID"  = usgs_meta."VIDO_ID"
+		  WHERE  usgs."POTOGRF_BEGIN_DT" >= #{date1}::timestamp AND usgs."POTOGRF_END_DT"  <  #{date2}::timestamp+interval '1 day'
+		  ]]>
+				AND "POTOGRF_VIDO_CD" IN('7','8')
+			</if>
+		</if>
+		ORDER BY usgs."INNER_FILE_COURS_NM"
+	</select>
+
+	<!-- 드론영상 -->
+	<select id="selectUsgsDroneList" resultType="egovMap"
+		parameterType="map">
+
+		<if test="drone == 'drone'">
+			<if test="dataKind == null or dataKind == '' or dataKind == 1">
+				<!-- 수집영상 -->
+	 	<![CDATA[
+	     SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN", 
+	     	CASE WHEN "POTOGRF_VIDO_CD" = '1' THEN 'landsat'
+	             WHEN "POTOGRF_VIDO_CD" = '2' THEN 'komsat'
+	             WHEN "POTOGRF_VIDO_CD" = '3' THEN '홍수'
+	             WHEN "POTOGRF_VIDO_CD" = '4' THEN '산불'
+	             WHEN "POTOGRF_VIDO_CD" = '5' THEN '산사태'
+	             WHEN "POTOGRF_VIDO_CD" = '6' THEN '기타위성'
+	             WHEN "POTOGRF_VIDO_CD" = '7' THEN '항공영상'
+	            END AS vido_nm
+	     FROM "TN_USGS" as usgs join "TN_USGS_META" as usgs_meta on usgs."VIDO_ID"  = usgs_meta."VIDO_ID"
+	     WHERE  usgs."POTOGRF_BEGIN_DT" >= #{date1}::timestamp AND usgs."POTOGRF_END_DT"  <  #{date2}::timestamp+interval '1 day'
+	      ]]>
+				AND "POTOGRF_VIDO_CD" IN('3','4','5')
+			</if>
+
+			<if test="dataKind == 2">
+				<!-- 처리데이터 -->
+	   	<![CDATA[
+	   	 SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN", CASE WHEN "POTOGRF_VIDO_CD" = '1' THEN 'landsat'
+		             WHEN "POTOGRF_VIDO_CD" = '2' THEN 'komsat'
+		             WHEN "POTOGRF_VIDO_CD" = '3' THEN '홍수'
+		             WHEN "POTOGRF_VIDO_CD" = '4' THEN '산불'
+		             WHEN "POTOGRF_VIDO_CD" = '5' THEN '산사태'
+		             WHEN "POTOGRF_VIDO_CD" = '6' THEN '기타위성'
+		             WHEN "POTOGRF_VIDO_CD" = '7' THEN '항공영상'
+		            END AS vido_nm
+		  FROM "TN_USGS_WORK" as usgs join "TN_USGS_META" as usgs_meta on usgs."VIDO_ID"  = usgs_meta."VIDO_ID"
+		  WHERE  usgs."POTOGRF_BEGIN_DT" >= #{date1}::timestamp AND usgs."POTOGRF_END_DT"  <  #{date2}::timestamp+interval '1 day'
+		  ]]>
+				AND "POTOGRF_VIDO_CD" IN('3','4','5')
+			</if>
+		</if>
+		ORDER BY usgs."INNER_FILE_COURS_NM"
+	</select>
+
+
+	<!-- 기타위성 -->
+	<select id="selectEtcList" resultType="egovMap"
+		parameterType="map">
+
+		<if test="dataKind == null or dataKind == '' or dataKind == 1">
+	 	<![CDATA[
+	     SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN" FROM "TN_USGS" as usgs join "TN_USGS_META" as usgs_meta on usgs."VIDO_ID"  = usgs_meta."VIDO_ID" WHERE
+	     usgs."POTOGRF_BEGIN_DT" >= #{date1}::timestamp AND usgs."POTOGRF_END_DT"  <  #{date2}::timestamp+interval '1 day' AND "POTOGRF_VIDO_CD" IN('1', '2', '6')
+	     ]]>
+		</if>
+		<if test="dataKind == 2">
+     	<![CDATA[
+	     SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN" FROM "TN_USGS_WORK" as usgs join "TN_USGS_META" as usgs_meta on usgs."VIDO_ID"  = usgs_meta."VIDO_ID" WHERE
+	     usgs."POTOGRF_BEGIN_DT" >= #{date1}::timestamp AND usgs."POTOGRF_END_DT"  <  #{date2}::timestamp+interval '1 day' AND "POTOGRF_VIDO_CD" IN('1', '2', '6')
+	     ]]>
+		</if>
+		ORDER BY usgs."INNER_FILE_COURS_NM"
+	</select>
+	
+	<!-- 국토위성 -->
+	<select id="selectSoilList" resultType="egovMap"
+		parameterType="map">
+
+		<if test="dataKind == null or dataKind == '' or dataKind == 1">
+	 	<![CDATA[
+	     SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN" FROM "TN_USGS" as usgs join "TN_USGS_META" as usgs_meta on usgs."VIDO_ID"  = usgs_meta."VIDO_ID" WHERE
+	     usgs."POTOGRF_BEGIN_DT" >= #{date1}::timestamp AND usgs."POTOGRF_END_DT"  <  #{date2}::timestamp+interval '1 day' AND "POTOGRF_VIDO_CD" = '0'
+	     ]]>
+		</if>
+		<if test="dataKind == 2">
+     	<![CDATA[
+	     SELECT usgs.*, usgs_meta."MAP_PRJCTN_CN" FROM "TN_USGS_WORK" as usgs join "TN_USGS_META" as usgs_meta on usgs."VIDO_ID"  = usgs_meta."VIDO_ID" WHERE
+	     usgs."POTOGRF_BEGIN_DT" >= #{date1}::timestamp AND usgs."POTOGRF_END_DT"  <  #{date2}::timestamp+interval '1 day' AND "POTOGRF_VIDO_CD" = '0'
+	     ]]>
+		</if>
+		ORDER BY usgs."INNER_FILE_COURS_NM"
+	</select>
+
+</mapper>

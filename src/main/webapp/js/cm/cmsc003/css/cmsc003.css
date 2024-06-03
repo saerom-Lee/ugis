@@ -1,0 +1,114 @@
+ul.ui-path-list {
+	overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+.datepicker {
+	position: absolute;
+}
+
+.ui-input-datepicker {
+	width: 86px !important;
+	display: inline-block;
+}
+
+.ui-btn-open-datepicker {
+	display: inline-block;
+	height: 64px !important;
+	vertical-align: top;
+}
+
+.ui-map-area {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	top: 111px;
+}
+
+.js-search-result-area dd, .js-request-result-area dd {
+	height: 24px;
+}
+
+#cmsc003-modal table.js-table-disaster-result tbody tr:hover {
+	background-color: #ededed;
+	cursor: pointer;
+}
+
+.js-request-result-area dd span, .js-search-result-area dd label {
+	display: inline-block;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+}
+
+.js-request-result-area dd span {
+	max-width: 192px;
+}
+
+.js-search-result-area dd label {
+	max-width: 170px;
+}
+
+.ui-result-child-indent {
+	padding-left: 12px;
+}
+
+/* .ui-btn-clicked-layer-preview {
+	box-shadow: inset 1px 1px 2px 1px #626262;
+	background-color: #cbcbcb !important;
+} */
+
+.ui-btn-clicked-layer-preview > a > button {
+	box-shadow: inset 1px 1px 2px 1px #626262;
+	background-color: #cbcbcb !important;
+}
+
+table.js-table-disaster-result tr td:last-child {
+	max-width: 70px;
+}
+
+.jstree-node > a > button {
+	background-color:transparent;
+/* 	padding: 2px 2px 2px 4px;  */
+	padding: 2px 5px;
+	margin: 2px 4px 0px 4px;
+}
+
+.js-tree-parent-1 span, .js-tree-parent-2 span, .js-tree-parent-3 span, .js-tree-child-1 span, .js-tree-child-2 span, .js-tree-child-3 span {
+	display: inline-block;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+}
+
+.js-tree-parent-1 span {
+	font-weight: bold;
+	max-width: 191px;
+}
+
+.js-tree-parent-2 span {
+	font-weight: bold;
+	max-width: 168px;
+}
+
+.js-tree-parent-3 span {
+	font-weight: bold;
+	max-width: 144px;
+}
+
+.js-tree-parent-4 span {
+	font-weight: bold;
+	max-width: 118px;
+}
+
+.js-tree-child-1 span {
+	max-width: 168px;
+}
+
+.js-tree-child-2 span {
+	max-width: 144px;
+}
+
+.js-tree-child-3 span {
+	max-width: 118px;
+}

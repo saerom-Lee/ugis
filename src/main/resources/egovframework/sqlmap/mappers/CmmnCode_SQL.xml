@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="ugis.service.mapper.CmmnCodeMapper">
+
+    <select id="selectCmmnCodeList" resultType="ugis.service.vo.CmmnCodeVO" parameterType="ugis.service.vo.CmmnCodeVO">
+        SELECT A."GROUP_CODE"
+             , A."GROUP_NM"
+             , A."GROUP_CODE_CN"
+             , B."CMMN_CODE"
+             , B."CODE_NM"
+             , B."CODE_CN"
+             , B."SORT_ORDR"
+          FROM "TN_CMMN_CODE_GROUP" AS A
+          LEFT JOIN "TN_CMMN_CODE" AS B ON (B."GROUP_CODE" = A."GROUP_CODE")
+         <where>
+	         <if test="groupCode != null and groupCode != ''">
+	           AND A."GROUP_CODE" = #{groupCode}
+	         </if>
+	         <if test="cmmnCode != null and cmmnCode != ''">
+	           AND B."CMMN_CODE" = #{cmmnCode}
+	         </if>
+         </where>
+         ORDER BY A."SORT_ORDR", B."SORT_ORDR"
+    </select>
+
+</mapper>

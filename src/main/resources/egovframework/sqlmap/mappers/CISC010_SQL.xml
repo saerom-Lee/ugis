@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="ugis.service.mapper.CISC010Mapper">
+
+    <!-- AI 데이터셋 -->
+    <select id="selectAiDataSetList" resultType="ugis.service.vo.CISC010VO$AiDataSetListRes" parameterType="ugis.service.vo.CISC010VO$AiDataSetSearch">
+        SELECT "AI_DATA_SET_ID"
+             , "AI_DATA_SET_NM"
+          FROM "TN_AI_DATA_SET"
+         <where>
+	         <if test="searchAiDataSetNm != null and searchAiDataSetNm != ''">
+	           AND "AI_DATA_SET_NM" LIKE '%' || #{searchAiDataSetNm} || '%'
+	         </if>
+	         <if test="searchImageNm != null and searchImageNm.length > 0">
+	           AND "IMAGE_NM" IN
+	           <foreach collection="searchImageNm" item="item" separator="," open="(" close=")">
+	               #{item}
+	           </foreach>
+	         </if>
+         </where>
+         ORDER BY "AI_DATA_SET_ID" DESC
+    </select>
+
+    <select id="selectAiDataSet" resultType="ugis.service.vo.CISC010VO$TnAiDataSet" parameterType="Long">
+        SELECT "AI_DATA_SET_ID"
+             , "AI_DATA_SET_NM"
+             , "IMAGE_NM"
+             , "RSOLTN_VALUE"
+             , "BAND_NM"
+          FROM "TN_AI_DATA_SET"
+         WHERE "AI_DATA_SET_ID" = #{aiDataSetId}
+    </select>
+
+    <select id="selectImageDataList" resultType="ugis.service.vo.CISC010VO$TnImageData" parameterType="Long">
+        SELECT A."FILE_NM"
+          FROM "TN_IMAGE_DATA" A
+         INNER JOIN "TN_AI_DATA_SET_IMG_MAPNG" B ON B."IMAGE_DATA_ID" = A."IMAGE_DATA_ID"
+         INNER JOIN "TN_AI_DATA_SET" C ON C."AI_DATA_SET_ID" = B."AI_DATA_SET_ID"
+         WHERE C."AI_DATA_SET_ID" = #{aiDataSetId}
+    </select>
+
+    <select id="selectLblDataList" resultType="ugis.service.vo.CISC010VO$TnLblData" parameterType="Long">
+        SELECT A."FILE_NM"
+          FROM "TN_LBL_DATA" A
+         INNER JOIN "TN_AI_DATA_SET_LBL_MAPNG" B ON B."LBL_DATA_ID" = A."LBL_DATA_ID"
+         INNER JOIN "TN_AI_DATA_SET" C ON C."AI_DATA_SET_ID" = B."AI_DATA_SET_ID"
+         WHERE C."AI_DATA_SET_ID" = #{aiDataSetId}
+    </select>
+
+    <insert id="saveDataSet" parameterType="ugis.service.vo.CISC010VO$TnAiDataSet">
+        <selectKey keyProperty="aiDataSetId" resultType="Long" order="BEFORE">
+        SELECT NEXTVAL('"TN_AI_DATA_SET_AI_DATA_SET_ID_seq"') AS aiDataSetId
+        </selectKey>
+        INSERT INTO "TN_AI_DATA_SET"
+             (
+               "AI_DATA_SET_ID"
+             , "AI_DATA_SET_NM"
+             , "IMAGE_NM"
+             , "RSOLTN_VALUE"
+             , "BAND_NM"
+             )
+        VALUES
+             (
+               #{aiDataSetId}
+             , #{aiDataSetNm}
+             , #{imageNm}
+             , #{rsoltnValue}
+             , #{bandNm}
+             )
+    </insert>
+
+    <insert id="saveImageData" parameterType="ugis.service.vo.CISC010VO$TnImageData">
+        <selectKey keyProperty="imageDataId" resultType="Long" order="BEFORE">
+        SELECT NEXTVAL('"TN_IMAGE_DATA_IMAGE_DATA_ID_seq"') AS imageDataId
+        </selectKey>
+        INSERT INTO "TN_IMAGE_DATA"
+             (
+               "IMAGE_DATA_ID"
+             , "FILE_NM"
+             , "ALL_FILE_NM"
+             , "FILE_COURS_NM"
+             , "FILE_SIZE"
+             , "FILE_EXTSN_NM"
+             )
+        VALUES
+             (
+               #{imageDataId}
+             , #{fileNm}
+             , #{allFileNm}
+             , #{fileCoursNm}
+             , #{fileSize}
+             , #{fileExtsnNm}
+             )
+    </insert>
+
+    <insert id="saveLblData" parameterType="ugis.service.vo.CISC010VO$TnLblData">
+        <selectKey keyProperty="lblDataId" resultType="Long" order="BEFORE">
+        SELECT NEXTVAL('"TN_LBL_DATA_LBL_DATA_ID_seq"') AS lblDataId
+        </selectKey>
+        INSERT INTO "TN_LBL_DATA"
+             (
+               "LBL_DATA_ID"
+             , "FILE_NM"
+             , "ALL_FILE_NM"
+             , "FILE_COURS_NM"
+             , "FILE_SIZE"
+             , "FILE_EXTSN_NM"
+             )
+        VALUES
+             (
+               #{lblDataId}
+             , #{fileNm}
+             , #{allFileNm}
+             , #{fileCoursNm}
+             , #{fileSize}
+             , #{fileExtsnNm}
+             )
+    </insert>
+
+    <insert id="saveImageDataMap" parameterType="ugis.service.vo.CISC010VO$TnAiDataSetImgMapng">
+        INSERT INTO "TN_AI_DATA_SET_IMG_MAPNG"
+             (
+               "AI_DATA_SET_ID"
+             , "IMAGE_DATA_ID"
+             )
+        VALUES
+             (
+               #{aiDataSetId}
+             , #{imageDataId}
+             )
+    </insert>
+
+    <insert id="saveLblDataMap" parameterType="ugis.service.vo.CISC010VO$TnAiDataSetLblMapng">
+        INSERT INTO "TN_AI_DATA_SET_LBL_MAPNG"
+             (
+               "AI_DATA_SET_ID"
+             , "LBL_DATA_ID"
+             )
+        VALUES
+             (
+               #{aiDataSetId}
+             , #{lblDataId}
+             )
+    </insert>
+
+    <update id="updateDataSetFileCours" parameterType="Long">
+        UPDATE "TN_AI_DATA_SET"
+           SET "IMAGE_DATA_COURS_NM" = (
+               SELECT MAX(A."FILE_COURS_NM") AS FILE_COURS_NM
+                 FROM "TN_IMAGE_DATA" A
+                INNER JOIN "TN_AI_DATA_SET_IMG_MAPNG" B ON B."IMAGE_DATA_ID" = A."IMAGE_DATA_ID"
+                INNER JOIN "TN_AI_DATA_SET" C ON C."AI_DATA_SET_ID" = B."AI_DATA_SET_ID"
+                WHERE C."AI_DATA_SET_ID" = #{aiDataSetId}
+               )
+             , "LBL_DATA_COURS_NM" = (
+               SELECT MAX(A."FILE_COURS_NM") AS FILE_COURS_NM
+                 FROM "TN_LBL_DATA" A
+                INNER JOIN "TN_AI_DATA_SET_LBL_MAPNG" B ON B."LBL_DATA_ID" = A."LBL_DATA_ID"
+                INNER JOIN "TN_AI_DATA_SET" C ON C."AI_DATA_SET_ID" = B."AI_DATA_SET_ID"
+                WHERE C."AI_DATA_SET_ID" = #{aiDataSetId}
+               )
+         WHERE "AI_DATA_SET_ID" = #{aiDataSetId}
+    </update>
+
+    <delete id="deleteDataSet" parameterType="Long">
+        DELETE FROM "TN_AI_DATA_SET" WHERE "AI_DATA_SET_ID" = #{aiDataSetId}
+    </delete>
+
+    <delete id="deleteImageData" parameterType="Long">
+        DELETE FROM "TN_IMAGE_DATA"
+         WHERE "IMAGE_DATA_ID"
+            IN ( SELECT "IMAGE_DATA_ID" FROM "TN_AI_DATA_SET_IMG_MAPNG" WHERE "AI_DATA_SET_ID" = #{aiDataSetId} )
+    </delete>
+
+    <delete id="deleteLblData" parameterType="Long">
+        DELETE FROM "TN_LBL_DATA"
+         WHERE "LBL_DATA_ID"
+            IN ( SELECT "LBL_DATA_ID" FROM "TN_AI_DATA_SET_LBL_MAPNG" WHERE "AI_DATA_SET_ID" = #{aiDataSetId} )
+    </delete>
+
+    <delete id="deleteImageMapng" parameterType="Long">
+        DELETE FROM "TN_AI_DATA_SET_IMG_MAPNG" WHERE "AI_DATA_SET_ID" = #{aiDataSetId}
+    </delete>
+
+    <delete id="deleteLblMapng" parameterType="Long">
+        DELETE FROM "TN_AI_DATA_SET_LBL_MAPNG" WHERE "AI_DATA_SET_ID" = #{aiDataSetId}
+    </delete>
+
+    <select id="selectModelVerCount" parameterType="Long" resultType="Long">
+		SELECT COUNT(*) FROM "TN_AI_MODEL_VER" WHERE "AI_DATA_SET_ID" = #{aiDataSetId}
+	</select>
+
+    <select id="selectPrfomncEvlCount" parameterType="Long" resultType="Long">
+		SELECT COUNT(*) FROM "TN_AI_MODEL_PRFOMNC_EVL" WHERE "AI_DATA_SET_ID" = #{aiDataSetId}
+	</select>
+
+    <!-- AI 학습 -->
+    <insert id="saveModel" parameterType="ugis.service.vo.CISC010VO$TnAiModel">
+        <selectKey keyProperty="modelId" resultType="Long" order="BEFORE">
+        SELECT NEXTVAL('"TN_AI_MODEL_MODEL_ID_seq"')
+        </selectKey>
+        INSERT INTO "TN_AI_MODEL"
+             (
+             "MODEL_ID"
+             , "MODEL_NM"
+             , "MODEL_SE_CD"
+             , "ALGRTH_CD"
+             )
+        VALUES
+             (
+             #{modelId}
+             , #{modelNm}
+             , #{modelSeCd}
+             , #{algrthCd}
+             )
+    </insert>
+
+    <insert id="saveModelVer" parameterType="ugis.service.vo.CISC010VO$TnAiModelVer">
+        <selectKey keyProperty="aiModelId" resultType="Long" order="BEFORE">
+        SELECT NEXTVAL('"TN_AI_MODEL_VER_AI_MODEL_ID_seq"')
+        </selectKey>
+		INSERT INTO "TN_AI_MODEL_VER"
+		(
+		"MODEL_ID"
+		, "AI_MODEL_ID"
+		, "AI_DATA_SET_ID"
+		, "PATCH_SIZE_CD"
+		, "BATCH_SIZE_CD"
+		, "REPTIT_CO"
+		, "LRN_RATE_SETUP"
+		, "PROGRS_STTUS_CD"
+		, "STRE_YN"
+		, "MODEL_EXECUT_COURS_NM"
+		)
+		VALUES(
+		#{modelId}
+		, #{aiModelId}
+		, #{aiDataSetId}
+		, #{patchSizeCd}
+		, #{batchSizeCd}
+		, #{reptitCo}
+		, #{lrnRateSetup}
+		, #{progrsSttusCd}
+		, 'N'
+		, 	(
+			SELECT "MODEL_STRE_COURS_NM" FROM "TN_AI_MODEL_VER"
+			WHERE "MODEL_ID" = #{modelId}
+			AND "AI_MODEL_ID" = (SELECT MAX("AI_MODEL_ID") FROM "TN_AI_MODEL_VER" WHERE "MODEL_ID" = #{modelId} AND "PROGRS_STTUS_CD" = '444' AND "STRE_YN" = 'Y')
+			GROUP BY "MODEL_STRE_COURS_NM"
+			)
+		)
+    </insert>
+
+    <select id="selectModel" resultType="ugis.service.vo.CISC010VO$TnAiModelVer" parameterType="ugis.service.vo.CISC010VO$TnAiModel">
+        SELECT "MODEL_ID"
+             , "MODEL_NM"
+             , "MODEL_SE_CD"
+             , "ALGRTH_CD"
+          FROM "TN_AI_MODEL"
+         <where>
+	         <if test="modelId != null and modelId != ''">
+	           AND "MODEL_ID" = #{modelId}
+	         </if>
+         </where>
+    </select>
+
+    <select id="selectModelVer" resultType="ugis.service.vo.CISC010VO$TnAiModelVer" parameterType="ugis.service.vo.CISC010VO$TnAiModelVer">
+		SELECT M."MODEL_ID"
+             , M."MODEL_NM"
+             , M."MODEL_SE_CD"
+             , M."ALGRTH_CD"
+             , DS."AI_DATA_SET_NM"
+             , DS."IMAGE_NM"
+             , DS."RSOLTN_VALUE"
+             , MV."AI_MODEL_ID"
+             , MV."AI_DATA_SET_ID"
+             , MV."PATCH_SIZE_CD"
+             , MV."BATCH_SIZE_CD"
+             , MV."REPTIT_CO"
+             , MV."LRN_RATE_SETUP"
+             , MV."PROGRS_STTUS_CD"
+             , MV."STRE_YN"
+             , MV."MODEL_EXECUT_COURS_NM"
+             , MV."AI_LRN_ID"
+             , MV."MODEL_STRE_COURS_NM"
+		FROM "TN_AI_MODEL" M
+		LEFT JOIN "TN_AI_MODEL_VER" MV ON M."MODEL_ID" = MV."MODEL_ID"
+		AND "AI_MODEL_ID" = (SELECT MAX("AI_MODEL_ID") FROM "TN_AI_MODEL_VER" MVT WHERE MVT."MODEL_ID" = MV."MODEL_ID" <if test="aiModelId != null and aiModelId != ''">AND MVT."AI_MODEL_ID" != #{aiModelId}</if>)
+		LEFT JOIN "TN_AI_DATA_SET" DS ON DS."AI_DATA_SET_ID" = MV."AI_DATA_SET_ID"
+		WHERE M."MODEL_ID" = #{modelId}
+    </select>
+
+    <select id="selectModelList" resultType="ugis.service.vo.CISC010VO$TnAiModelVer" parameterType="ugis.service.vo.CISC010VO$AiLearningSearch">
+		SELECT M."MODEL_ID"
+             , M."MODEL_NM"
+             , M."MODEL_SE_CD"
+             , M."ALGRTH_CD"
+             , DS."AI_DATA_SET_NM"
+             , DS."IMAGE_NM"
+             , DS."RSOLTN_VALUE"
+             , MV."AI_MODEL_ID"
+             , MV."AI_DATA_SET_ID"
+             , MV."PATCH_SIZE_CD"
+             , MV."BATCH_SIZE_CD"
+             , MV."REPTIT_CO"
+             , MV."LRN_RATE_SETUP"
+             , MV."PROGRS_STTUS_CD"
+             , MV."STRE_YN"
+             , MV."MODEL_EXECUT_COURS_NM"
+             , MV."AI_LRN_ID"
+             , MV."MODEL_STRE_COURS_NM"
+		FROM "TN_AI_MODEL" M
+		LEFT JOIN "TN_AI_MODEL_VER" MV ON M."MODEL_ID" = MV."MODEL_ID"
+		AND "AI_MODEL_ID" = (SELECT MAX("AI_MODEL_ID") FROM "TN_AI_MODEL_VER" MVT WHERE MVT."MODEL_ID" = MV."MODEL_ID")
+		LEFT JOIN "TN_AI_DATA_SET" DS ON DS."AI_DATA_SET_ID" = MV."AI_DATA_SET_ID"
+         <where>
+         	 AND MV."MODEL_ID" IS NOT NULL
+	         <if test="modelSeCd != null and modelSeCd != ''">
+	           AND M."MODEL_SE_CD" = #{modelSeCd}
+	         </if>
+	         <if test="streYn != null and streYn != ''">
+	           AND MV."STRE_YN" = #{streYn}
+	         </if>
+	         <if test="searchProgrsSttusCd != null and searchProgrsSttusCd.length > 0">
+	           AND MV."PROGRS_STTUS_CD" IN
+	           <foreach collection="searchProgrsSttusCd" item="item" separator="," open="(" close=")">
+	               #{item}
+	           </foreach>
+	         </if>
+	         <if test="searchImageNm != null and searchImageNm.length > 0">
+	           AND DS."IMAGE_NM" IN
+	           <foreach collection="searchImageNm" item="item" separator="," open="(" close=")">
+	               #{item}
+	           </foreach>
+	         </if>
+         </where>
+    </select>
+
+    <select id="selectLrnHistList" resultType="ugis.service.vo.CISC010VO$TnAiLrnHist" parameterType="ugis.service.vo.CISC010VO$TnAiModelVer">
+	    SELECT "MODEL_ID", "AI_MODEL_ID", "AI_LRN_ID", "LRN_CO", "ACCCURACY_PT", "MLOU_PT", "PRECISION_PT", "RECALL_PT"
+		FROM "TN_AI_LRN_HIST"
+		<where>
+			AND "MODEL_ID" = #{modelId}
+			AND "AI_MODEL_ID" = #{aiModelId}
+<!-- 	        <if test="aiLrnId != null and aiLrnId != ''"> -->
+<!-- 	        	AND "AI_LRN_ID" = #{aiLrnId} -->
+<!-- 	        </if> -->
+		</where>
+         ORDER BY "LRN_CO" ASC
+    </select>
+
+    <select id="selectDataSetList" resultType="ugis.service.vo.CISC010VO$TnAiDataSet" parameterType="ugis.service.vo.CISC010VO$AiLearningSearch">
+        SELECT "AI_DATA_SET_ID"
+             , "AI_DATA_SET_NM"
+          FROM "TN_AI_DATA_SET"
+         <where>
+	         <if test="searchAiDataSetNm != null and searchAiDataSetNm != ''">
+	           AND "AI_DATA_SET_NM" = #{searchAiDataSetNm}
+	         </if>
+	         <if test="searchImageNm != null and searchImageNm.length > 0">
+	           AND "IMAGE_NM" IN
+	           <foreach collection="searchImageNm" item="item" separator="," open="(" close=")">
+	               #{item}
+	           </foreach>
+	         </if>
+         </where>
+         ORDER BY "AI_DATA_SET_ID" DESC
+    </select>
+
+    <insert id="savePrfomncEvl" parameterType="ugis.service.vo.CISC010VO$TnAiModelPrfomncEvl">
+        <selectKey keyProperty="modelPrfomncEvlId" resultType="Long" order="BEFORE">
+        SELECT NEXTVAL('"TN_AI_MODEL_PRFOMNC_EVL_MODEL_PRFOMNC_EVL_ID_seq"')
+        </selectKey>
+		INSERT INTO "TN_AI_MODEL_PRFOMNC_EVL"
+		(
+		"MODEL_ID"
+		, "AI_MODEL_ID"
+		, "MODEL_PRFOMNC_EVL_ID"
+		, "AI_DATA_SET_ID"
+		, "MODEL_PRFOMNC_EVL_NM"
+		, "PROGRS_STTUS_CD"
+		, "STRE_YN"
+		)
+		VALUES(
+		#{modelId}
+		, #{aiModelId}
+		, #{modelPrfomncEvlId}
+		, #{aiDataSetId}
+		, #{modelPrfomncEvlNm}
+		, #{progrsSttusCd}
+		, 'N'
+		)
+    </insert>
+
+    <select id="selectPrfomncEvlResultList" resultType="ugis.service.vo.CISC010VO$ThAiModelPrfomncEvlVidoResult" parameterType="ugis.service.vo.CISC010VO$AiLearningSearch">
+		SELECT
+			P."MODEL_ID"
+			, M."MODEL_NM"
+			, P."AI_MODEL_ID"
+			, P."MODEL_PRFOMNC_EVL_ID"
+			, P."AI_DATA_SET_ID"
+			, DS."AI_DATA_SET_NM"
+			, P."MODEL_PRFOMNC_EVL_NM"
+			, P."PROGRS_STTUS_CD"
+			, P."STRE_YN"
+			, P."ACCCURACY_PT"
+			, P."MLOU_PT"
+			, P."PRECISION_PT"
+			, P."RECALL_PT"
+		FROM "TN_AI_MODEL_PRFOMNC_EVL" P
+		LEFT JOIN "TN_AI_MODEL" M
+		ON M."MODEL_ID" = P."MODEL_ID"
+		LEFT JOIN "TN_AI_DATA_SET" DS
+		ON DS."AI_DATA_SET_ID" = P."AI_DATA_SET_ID"
+		WHERE P."PROGRS_STTUS_CD" = '444'
+         <if test="modelId != null and modelId != ''">
+           AND P."MODEL_ID" = #{modelId}
+         </if>
+         <if test="aiModelId != null and aiModelId != ''">
+           AND P."AI_MODEL_ID" = #{aiModelId}
+         </if>
+         <if test="modelPrfomncEvlId != null and modelPrfomncEvlId != ''">
+           AND P."MODEL_PRFOMNC_EVL_ID" = #{modelPrfomncEvlId}
+         </if>
+         <if test="streYn != null and streYn != ''">
+           AND P."STRE_YN" = #{streYn}
+         </if>
+    </select>
+
+    <!-- AI 학습 -->
+    <insert id="saveAsModel" parameterType="ugis.service.vo.CISC010VO$TnAiModelVer">
+        <selectKey keyProperty="modelId" resultType="Long" order="BEFORE">
+        SELECT NEXTVAL('"TN_AI_MODEL_MODEL_ID_seq"')
+        </selectKey>
+        INSERT INTO "TN_AI_MODEL"
+             (
+             "MODEL_ID"
+             , "MODEL_NM"
+             , "MODEL_SE_CD"
+             , "ALGRTH_CD"
+             )
+        SELECT
+              #{modelId}
+             , #{modelNm}
+             , '452'
+             , "ALGRTH_CD"
+        FROM "TN_AI_MODEL"
+        WHERE "MODEL_ID" = #{beforeModelId}
+    </insert>
+
+    <insert id="saveAsModelVer" parameterType="ugis.service.vo.CISC010VO$TnAiModelVer">
+        <selectKey keyProperty="aiModelId" resultType="Long" order="BEFORE">
+        SELECT NEXTVAL('"TN_AI_MODEL_VER_AI_MODEL_ID_seq"')
+        </selectKey>
+		INSERT INTO "TN_AI_MODEL_VER"
+		(
+		"MODEL_ID"
+		, "AI_MODEL_ID"
+		, "AI_DATA_SET_ID"
+		, "PATCH_SIZE_CD"
+		, "BATCH_SIZE_CD"
+		, "REPTIT_CO"
+		, "LRN_RATE_SETUP"
+		, "PROGRS_STTUS_CD"
+		, "STRE_YN"
+		, "MODEL_EXECUT_COURS_NM"
+		, "AI_LRN_ID"
+		, "MODEL_STRE_COURS_NM"
+		)
+		SELECT
+		#{modelId}
+		, #{aiModelId}
+		, "AI_DATA_SET_ID"
+		, "PATCH_SIZE_CD"
+		, "BATCH_SIZE_CD"
+		, "REPTIT_CO"
+		, "LRN_RATE_SETUP"
+		, "PROGRS_STTUS_CD"
+		, 'Y'
+		, "MODEL_EXECUT_COURS_NM"
+		, "AI_LRN_ID"
+		, "MODEL_STRE_COURS_NM"
+		FROM "TN_AI_MODEL_VER"
+		WHERE "MODEL_ID" = #{beforeModelId}
+		AND "AI_MODEL_ID" = #{beforeAiModelId}
+    </insert>
+
+    <insert id="saveAsLrnHist" parameterType="ugis.service.vo.CISC010VO$TnAiModelVer">
+        INSERT INTO "TN_AI_LRN_HIST"
+        (
+        	"MODEL_ID"
+			, "AI_MODEL_ID"
+			, "AI_LRN_ID"
+        	, "LRN_CO"
+        	, "ACCCURACY_PT"
+        	, "MLOU_PT"
+        	, "PRECISION_PT"
+        	, "RECALL_PT"
+        )
+        SELECT
+        	#{modelId}
+			, #{aiModelId}
+			, "AI_LRN_ID"
+        	, "LRN_CO"
+        	, "ACCCURACY_PT"
+        	, "MLOU_PT"
+        	, "PRECISION_PT"
+        	, "RECALL_PT"
+
+        FROM "TN_AI_LRN_HIST"
+        WHERE "MODEL_ID" = #{beforeModelId}
+        AND "AI_MODEL_ID" = #{beforeAiModelId}
+    </insert>
+
+    <update id="updateAiLearning" parameterType="ugis.service.vo.CISC010VO$TnAiModelVer">
+        UPDATE "TN_AI_MODEL_VER"
+        SET "STRE_YN" = 'Y'
+        WHERE "AI_MODEL_ID" = #{aiModelId}
+    </update>
+
+    <update id="updatePrfomncEvlResult" parameterType="ugis.service.vo.CISC010VO$ThAiModelPrfomncEvlVidoResult">
+        UPDATE "TN_AI_MODEL_PRFOMNC_EVL"
+        SET "STRE_YN" = 'Y'
+        WHERE "MODEL_ID" = #{modelId}
+        AND "AI_MODEL_ID" = #{aiModelId}
+        AND "MODEL_PRFOMNC_EVL_ID" = #{modelPrfomncEvlId}
+    </update>
+
+    <delete id="deleteAiLearning" parameterType="ugis.service.vo.CISC010VO$TnAiModelVer">
+        DELETE FROM "TN_AI_MODEL_VER" WHERE "MODEL_ID" = #{modelId} AND "AI_MODEL_ID" = #{aiModelId}
+    </delete>
+
+    <delete id="deleteLrnHist" parameterType="ugis.service.vo.CISC010VO$TnAiModelVer">
+        DELETE FROM "TN_AI_LRN_HIST" WHERE "MODEL_ID" = #{modelId} AND "AI_MODEL_ID" = #{aiModelId}
+    </delete>
+</mapper>
