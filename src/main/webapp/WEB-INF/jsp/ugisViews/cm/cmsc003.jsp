@@ -576,7 +576,7 @@ CMSC003 JS Dev
 	<script src="js/cm/cmsc003/src/cmsc003.js"></script>
 	<script src="js/cm/cmsc003/src/gis/gis.js"></script>
 	<script src="js/cm/cmsc003/src/storage/storage.js"></script>
-	<script src="js/cm/cmsc003/src/dom/dom.js"></script>
+	<script src="js/cm/cmsc003/src/dom/dom2.js"></script>
 	<script src="js/cm/cmsc003/src/converter/converter.js"></script>
 	<script src="js/cm/cmsc003/src/util/util.js"></script>
 	<!-- ================================================
@@ -779,6 +779,7 @@ CMSC003 JS event
 							"landsat" : [],	
 							"sentinel" : [],
 							"cas" : [],
+							"sar" : [],
 						},
 						"demographic" : [],
 						"buldgraphics" : [],
@@ -865,6 +866,13 @@ CMSC003 JS event
 				var list = CMSC003.Storage.get('searchDataMap');
 				selectData.existing.satellite.cas.push(list['cas-'+$(this).val()]);
 			});
+			
+			// sar 데이터
+			$("#resultList1 input.js-search-result-sar:checkbox:checked").each(function(i, e) {
+				var list = CMSC003.Storage.get('searchDataMap');
+				selectData.existing.satellite.sar.push(list['sar-'+$(this).val()]);
+			});
+			
 			
 			// 항공영상 데이터
 			$("#resultList1 input.js-search-result-aerial:checkbox:checked").each(function(i, e) {
@@ -984,6 +992,7 @@ CMSC003 JS event
 					!selectData.existing.satellite.kompsat.length &&
 					!selectData.existing.satellite.sentinel.length &&
 					!selectData.existing.satellite.cas.length &&
+					!selectData.existing.satellite.sar.length &&
 					!selectData.existing.digitalMap.length &&
 					!selectData.analysis.objectExt.vector.length &&
 					!selectData.analysis.objectExt.raster.length &&
@@ -1079,6 +1088,10 @@ CMSC003 JS event
 							},
 							{
 								"satNm": "CAS",
+								"map": []
+							},
+							{
+								"satNm": "SAR",
 								"map": []
 							}
 						],
@@ -1256,6 +1269,10 @@ CMSC003 JS event
 							{
 								"satNm": "CAS",
 								"map": []
+							},
+							{
+								"satNm": "SAR",
+								"map": []
 							}
 						],
 
@@ -1343,6 +1360,7 @@ CMSC003 JS event
 			// landsat 데이터
 			// sentinel 데이터
 			// cas 데이터
+			// sar 데이터
 			satellite.forEach(function(item) {
 				var list = CMSC003.Storage.get('searchDataMap');
 				var sat = item.id.split('-')[2];
@@ -1589,6 +1607,59 @@ CMSC003 JS event
 // 							selectData.existing.satellite[3].map.push( {"folder": folder, "fileList":[list['cas-'+item.li_attr.value]]} );
 // 						}
 					}
+				}else if (sat == "sar") {
+					if (list['sar-'+item.li_attr.value]) {
+						var dateLabel = item.parents[1].split('vido-id-satellite-title-sar-')[1];
+						
+						var dateExist = false;
+						var dateIdx = null;
+						if(dateLabel) {
+							for (var i=0; i<selectData.existing.satellite[4].map.length; i++) {
+								if (selectData.existing.satellite[4].map[i].date === dateLabel) {
+									dateIdx = i;
+									dateExist = true;
+									break;
+								}
+							}
+							if (!dateExist) {
+								var folderList = {
+									'date': dateLabel,
+									'folderList': []
+								};
+								selectData.existing.satellite[4].map.push(folderList);
+								dateIdx = selectData.existing.satellite[4].map.length - 1; 
+							}
+						}
+						if(!isNaN(dateIdx) && dateIdx !== null) {
+							var check = false;
+							for (var i=0; i<selectData.existing.satellite[4].map[dateIdx].folderList.length; i++) {
+								if(selectData.existing.satellite[4].map[dateIdx].folderList[i].folderNm === folder) {
+									selectData.existing.satellite[4].map[dateIdx].folderList[i].fileList.push(list['sar-'+item.li_attr.value]);
+									check = true;
+									break;
+								}
+							}
+							
+							if (!check) {
+								var fileList = {
+									'folderNm' : folder,
+									'fileList' : [list['sar-'+item.li_attr.value]]
+								};
+								selectData.existing.satellite[4].map[dateIdx].folderList.push(fileList);
+							}
+						}
+// 						var check = false;
+// 						for (var i=0; i<selectData.existing.satellite[1].map.length; i++) {
+// 							if (selectData.existing.satellite[1].map[i].folder == folder) {
+// 								selectData.existing.satellite[1].map[i].fileList.push(list['landsat-'+item.li_attr.value]);
+// 								check = true;
+// 								break;
+// 							}
+// 						}
+// 						if (!check) {
+// 							selectData.existing.satellite[1].map.push( {"folder": folder, "fileList":[list['landsat-'+item.li_attr.value]]} );
+// 						}
+					}
 				}
 				
 			});
@@ -1815,6 +1886,7 @@ CMSC003 JS event
 					!selectData.existing.satellite[1].map.length &&
 					!selectData.existing.satellite[2].map.length &&
 					!selectData.existing.satellite[3].map.length &&
+					!selectData.existing.satellite[4].map.length &&
 					!selectData.analysis.objectExt.vector.length &&
 					!selectData.analysis.objectExt.raster.length &&
 					!selectData.analysis.changeDet.vector.length &&
@@ -1923,6 +1995,10 @@ CMSC003 JS event
 							},
 							{
 								"satNm": "CAS",
+								"map": []
+							},
+							{
+								"satNm": "SAR",
 								"map": []
 							}
 						],
@@ -2251,6 +2327,60 @@ CMSC003 JS event
 // 							selectData.existing.satellite[3].map.push( {"folder": folder, "fileList":[list['cas-'+item.li_attr.value]]} );
 // 						}
 					}
+				} else if (sat == "sar") {
+					if (list['sar-'+item.li_attr.value]) {
+						var dateLabel = item.parents[1].split('vido-id-satellite-title-sar-')[1];
+						
+						var dateExist = false;
+						var dateIdx = null;
+						if(dateLabel) {
+							for (var i=0; i<selectData.existing.satellite[4].map.length; i++) {
+								if (selectData.existing.satellite[4].map[i].date === dateLabel) {
+									dateIdx = i;
+									dateExist = true;
+									break;
+								}
+							}
+							if (!dateExist) {
+								var folderList = {
+									'date': dateLabel,
+									'folderList': []
+								};
+								selectData.existing.satellite[4].map.push(folderList);
+								dateIdx = selectData.existing.satellite[4].map.length - 1; 
+							}
+						}
+						if(!isNaN(dateIdx) && dateIdx !== null) {
+							var check = false;
+							for (var i=0; i<selectData.existing.satellite[4].map[dateIdx].folderList.length; i++) {
+								if(selectData.existing.satellite[4].map[dateIdx].folderList[i].folderNm === folder) {
+									selectData.existing.satellite[4].map[dateIdx].folderList[i].fileList.push(list['sar-'+item.li_attr.value]);
+									check = true;
+									break;
+								}
+							}
+							
+							if (!check) {
+								var fileList = {
+									'folderNm' : folder,
+									'fileList' : [list['sar-'+item.li_attr.value]]
+								};
+								selectData.existing.satellite[4].map[dateIdx].folderList.push(fileList);
+							}
+						}
+					
+// 						var check = false;
+// 						for (var i=0; i<selectData.existing.satellite[3].map.length; i++) {
+// 							if (selectData.existing.satellite[3].map[i].folder == folder) {
+// 								selectData.existing.satellite[3].map[i].fileList.push(list['cas-'+item.li_attr.value]);
+// 								check = true;
+// 								break;
+// 							}
+// 						}
+// 						if (!check) {
+// 							selectData.existing.satellite[3].map.push( {"folder": folder, "fileList":[list['cas-'+item.li_attr.value]]} );
+// 						}
+					}
 				}
 				
 			});
@@ -2477,6 +2607,7 @@ CMSC003 JS event
 					!selectData.existing.satellite[1].map.length &&
 					!selectData.existing.satellite[2].map.length &&
 					!selectData.existing.satellite[3].map.length &&
+					!selectData.existing.satellite[4].map.length &&
 					!selectData.analysis.objectExt.vector.length &&
 					!selectData.analysis.objectExt.raster.length &&
 					!selectData.analysis.changeDet.vector.length &&

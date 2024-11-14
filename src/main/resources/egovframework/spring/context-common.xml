@@ -58,11 +58,11 @@
 
 	<bean id="defaultTraceHandler"
 		class="egovframework.rte.fdl.cmmn.trace.handler.DefaultTraceHandler" />
-	<!-- 운영배포용 설정파일 -->
+	<!-- 운영배포용 설정파일>-->
 	<util:properties id="fileProperties" 
 	 location="classpath://properties/application.properties" />
 	
-	<!-- 개발 테스트용 설정파일 
+	<!-- 개발 테스트용 설정파일
 	<util:properties id="fileProperties"
-		location="classpath://properties/global.properties" />-->
+		location="classpath://properties/global.properties" /> -->
 </beans>

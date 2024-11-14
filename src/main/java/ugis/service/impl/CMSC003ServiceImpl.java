@@ -1221,7 +1221,7 @@ public class CMSC003ServiceImpl extends EgovAbstractServiceImpl implements CMSC0
 		return demMapList;
 	}
 
-	//긴급공간정보 생성 검색 버튼 클릭시 트리 조회 컨트롤러
+	//긴급공간정보 생성 검색 버튼 클릭시 트리 조회 컨트롤러 2024.08.05 sar
 	@Override
 	public JSONArray selectUsgsSatelliteList(CMSC003VO cmsc003vo) {
 
@@ -1244,11 +1244,13 @@ public class CMSC003ServiceImpl extends EgovAbstractServiceImpl implements CMSC0
 				JSONArray landsatArry = new JSONArray(); // Landsat
 				JSONArray sentinelArry = new JSONArray(); // Sentinel
 				JSONArray casArry = new JSONArray(); // CAS
+				JSONArray sarArry = new JSONArray(); // SAR
 
 				JSONObject kompsatObj = new JSONObject();
 				JSONObject landsatObj = new JSONObject();
 				JSONObject sentinelObj = new JSONObject();
 				JSONObject casObj = new JSONObject();
+				JSONObject sarObj = new JSONObject();
 
 				kompsatObj.put("satNm", "Kompsat");
 				kompsatObj.put("map", kompsatArry);
@@ -1261,6 +1263,9 @@ public class CMSC003ServiceImpl extends EgovAbstractServiceImpl implements CMSC0
 
 				casObj.put("satNm", "CAS");
 				casObj.put("map", casArry);
+				
+				sarObj.put("satNm", "SAR");
+				sarObj.put("map", sarArry);
 
 				for (int i = 0; i < usgsList.size(); i++) {
 					try {
@@ -1534,6 +1539,51 @@ public class CMSC003ServiceImpl extends EgovAbstractServiceImpl implements CMSC0
 									sentinelMap.put("folderList", folderList);
 									sentinelArry.add(sentinelMap);
 								}
+							}  else if (vidoCd.contentEquals("9")) { //  2024.08.05 sar:9
+								String[] pathArr = path.split("/");
+//								dirNm = pathArr[5];
+								dirNm = pathArr[4];
+
+								boolean exist = false;
+								for (int j = 0; j < sarArry.size(); j++) {
+									JSONObject sarMap = (JSONObject) sarArry.get(j);
+									String mapFolder = (String) sarMap.get("date");
+									if (mapFolder.contentEquals(date)) {
+										JSONArray folderList = (JSONArray) sarMap.get("folderList");
+										boolean existin = false;
+										for (int f = 0; f < folderList.size(); f++) {
+											JSONObject folderObj = (JSONObject) folderList.get(f);
+											String folderNm = (String) folderObj.get("folderNm");
+											if (folderNm.contentEquals(dirNm)) {
+												JSONArray fileList = (JSONArray) folderObj.get("fileList");
+												fileList.add(fileList.size(), resObj);
+												existin = true;
+											}
+										}
+										if (!existin) {
+											JSONObject newFolderObj = new JSONObject();
+											JSONArray newFileList = new JSONArray();
+											newFileList.add(resObj);
+											newFolderObj.put("folderNm", dirNm);
+											newFolderObj.put("fileList", newFileList);
+											folderList.add(newFolderObj);
+										}
+										exist = true;
+									}
+								}
+								if (!exist) {
+									JSONObject sarMap = new JSONObject();
+									sarMap.put("date", date);
+									JSONArray folderList = new JSONArray();
+									JSONObject folderObj = new JSONObject();
+									folderObj.put("folderNm", dirNm);
+									JSONArray fileList = new JSONArray();
+									fileList.add(resObj);
+									folderObj.put("fileList", fileList);
+									folderList.add(folderObj);
+									sarMap.put("folderList", folderList);
+									sarArry.add(sarMap);
+								}
 							}
 						}
 					} catch (Exception e) {
@@ -1545,6 +1595,7 @@ public class CMSC003ServiceImpl extends EgovAbstractServiceImpl implements CMSC0
 				result.add(landsatObj);
 				result.add(sentinelObj);
 				result.add(casObj);
+				result.add(sarObj);
 			}
 		}
 		return result;
@@ -2309,6 +2360,8 @@ public class CMSC003ServiceImpl extends EgovAbstractServiceImpl implements CMSC0
 		return result;
 	}
 
+	
+	//긴급공간정보생성 impl
 	@Override
 	@Transactional
 	public JSONObject cmsc003createData(JSONObject createObj)
@@ -2329,11 +2382,13 @@ public class CMSC003ServiceImpl extends EgovAbstractServiceImpl implements CMSC0
 		JSONArray landsatArry = new JSONArray(); // Landsat
 		JSONArray sentinelArry = new JSONArray(); // Sentinel
 		JSONArray casArry = new JSONArray(); // CAS
+		JSONArray sarArry = new JSONArray(); // SAR
 
 		JSONObject kompsatObj = new JSONObject();
 		JSONObject landsatObj = new JSONObject();
 		JSONObject sentinelObj = new JSONObject();
 		JSONObject casObj = new JSONObject();
+		JSONObject sarObj = new JSONObject();
 
 		kompsatObj.put("satNm", "Kompsat");
 		kompsatObj.put("map", kompsatArry);
@@ -2346,12 +2401,16 @@ public class CMSC003ServiceImpl extends EgovAbstractServiceImpl implements CMSC0
 
 		casObj.put("satNm", "CAS");
 		casObj.put("map", casArry);
+		
+		sarObj.put("satNm", "SAR");
+		sarObj.put("map", sarArry);
 
 		JSONArray sateArry = new JSONArray(); // 위성영상
 		sateArry.add(kompsatObj);
 		sateArry.add(landsatObj);
 		sateArry.add(sentinelObj);
 		sateArry.add(casObj);
+		sateArry.add(sarObj);
 
 		JSONArray airMapList = new JSONArray(); // 항공영상
 		JSONArray ortMapList = new JSONArray(); // 정사영상
@@ -3524,6 +3583,10 @@ public class CMSC003ServiceImpl extends EgovAbstractServiceImpl implements CMSC0
 					satKrNm = "국토위성";
 					dataCd = "DSCD113";
 				}
+				if (satNm.contentEquals("SAR")) {
+					satKrNm = "Sar";
+					dataCd = "DSCD119";  //2024.08.05 sar:DSCD119로 임시
+				}
 
 				JSONArray mapArry = (JSONArray) satObj.get("map");
 				for (int m = 0; m < mapArry.size(); m++) {
@@ -3540,6 +3603,7 @@ public class CMSC003ServiceImpl extends EgovAbstractServiceImpl implements CMSC0
 							String fullFileCoursNm = (String) file.get("fullFileCoursNm"); // 원본파일경로
 
 							File fullFile = new File(fullFileCoursNm);
+							
 							if (!fullFile.exists()) {
 								continue;
 							}
@@ -5324,11 +5388,13 @@ public class CMSC003ServiceImpl extends EgovAbstractServiceImpl implements CMSC0
 		JSONArray landsatArry = new JSONArray(); // Landsat
 		JSONArray sentinelArry = new JSONArray(); // Sentinel
 		JSONArray casArry = new JSONArray(); // CAS
+		JSONArray sarArry = new JSONArray(); // SAR
 
 		JSONObject kompsatObj = new JSONObject();
 		JSONObject landsatObj = new JSONObject();
 		JSONObject sentinelObj = new JSONObject();
 		JSONObject casObj = new JSONObject();
+		JSONObject sarObj = new JSONObject();
 
 		kompsatObj.put("satNm", "Kompsat");
 		kompsatObj.put("map", kompsatArry);
@@ -5342,11 +5408,15 @@ public class CMSC003ServiceImpl extends EgovAbstractServiceImpl implements CMSC0
 		casObj.put("satNm", "CAS");
 		casObj.put("map", casArry);
 
+		sarObj.put("satNm", "SAR");
+		sarObj.put("map", sarArry);
+
 		JSONArray sateArry = new JSONArray(); // 위성영상
 		sateArry.add(kompsatObj);
 		sateArry.add(landsatObj);
 		sateArry.add(sentinelObj);
 		sateArry.add(casObj);
+		sateArry.add(sarObj);
 
 		existingJSON.put("satellite", sateArry);
 
@@ -5840,7 +5910,63 @@ public class CMSC003ServiceImpl extends EgovAbstractServiceImpl implements CMSC0
 							casArry.add(casMap);
 						}
 					}
+					
+					if (dataCd.contentEquals("DSCD119")) { // SAR:119 2024.08.05
+						String date = dataset.get("potogrfBeginDt").toString();
+						String fNm = (String) dataset.get("fileNm");
+						String[] fNmArry = fNm.split("_");
+						String bandCn = fNmArry[fNmArry.length - 1];
+						String bandCnUp = bandCn.toUpperCase();
+						if (bandCnUp.startsWith("B") // B01, B1, B02, B2.....
+								|| bandCnUp.equals("R") || bandCnUp.equals("G") || bandCnUp.equals("B")
+								|| bandCnUp.equals("N") || bandCnUp.equals("P")) {
+							resObj.put("vidoNm", bandCn + ".tif");
+						} else {
+							resObj.put("vidoNm", fNm + ".tif");
+						}
 
+						boolean exist = false;
+						for (int j = 0; j < sarArry.size(); j++) {
+							JSONObject sarsatMap = (JSONObject) sarArry.get(j);
+							String mapFolder = (String) sarsatMap.get("date");
+							if (mapFolder.contentEquals(date)) {
+								JSONArray folderList = (JSONArray) sarsatMap.get("folderList");
+								boolean existin = false;
+								for (int f = 0; f < folderList.size(); f++) {
+									JSONObject folderObj = (JSONObject) folderList.get(f);
+									String folderNm = (String) folderObj.get("folderNm");
+									if (folderNm.contentEquals(dirNm)) {
+										JSONArray fileList = (JSONArray) folderObj.get("fileList");
+										fileList.add(fileList.size(), resObj);
+										existin = true;
+									}
+								}
+								if (!existin) {
+									JSONObject newFolderObj = new JSONObject();
+									JSONArray newFileList = new JSONArray();
+									newFileList.add(resObj);
+									newFolderObj.put("folderNm", dirNm);
+									newFolderObj.put("fileList", newFileList);
+									folderList.add(newFolderObj);
+								}
+								exist = true;
+							}
+						}
+						if (!exist) {
+							JSONObject sarsatMap = new JSONObject();
+							sarsatMap.put("date", date);
+							JSONArray folderList = new JSONArray();
+							JSONObject folderObj = new JSONObject();
+							folderObj.put("folderNm", dirNm);
+							JSONArray fileList = new JSONArray();
+							fileList.add(resObj);
+							folderObj.put("fileList", fileList);
+							folderList.add(folderObj);
+							sarsatMap.put("folderList", folderList);
+							sarArry.add(sarsatMap);
+						}
+					}
+					
 					// 항공영상
 					if (dataCd.contentEquals("DSCD120")) {
 						String dpi = (String) dataset.get("dpi");

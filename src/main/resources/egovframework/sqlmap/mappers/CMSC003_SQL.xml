@@ -65,7 +65,7 @@
 		<where>
 			AND (usgs."POTOGRF_VIDO_CD" IN (
 			<if test="dataKindCurrent != null or dataKindResult != null">
-				'0','1','2','6'
+				'0','1','2','6','9' <!-- 2024.08.05 sar:9 -->
 				<!-- ,'7','8' -->
 			</if>
 			))
@@ -305,7 +305,7 @@
 		<where>
 			AND (usgs."POTOGRF_VIDO_CD" IN (
 			<if test="dataKindCurrent != null or dataKindResult != null">
-				'0','1','2','6','7','8'
+				'0','1','2','6','7','8','9' <!-- 2024.08.05 sar:9 -->
 			</if>
 			))
 			<!-- <if test="dataKindResult != null"></if> -->

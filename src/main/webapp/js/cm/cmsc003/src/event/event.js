@@ -395,6 +395,47 @@ $('.js-search-result-area').on('click', '.ui-btn-preview-cas-image-layer', funct
 	}
 });
 
+//미리보기 버튼 클릭 - 위성영상 sar  : 긴급공간생성 08.28
+$('.js-search-result-area').on('click', '.ui-btn-preview-sar-image-layer', function(e) {
+	console.log($(this).val());
+	var id = $(this).data('tree'); // 현재 선택한 레벨의 노드 아이디
+	var tree = $(`#${id}`).jstree().get_json('#' + id, { "flat": true });
+	if (tree.length > 0) {
+		//$(`#${id}`).jstree("load_all");
+		if ($(`#${id}`).hasClass('ui-btn-clicked-layer-preview')) { // 미리보기 제거
+			for (var i = 0; i < tree.length; i++) {
+				if ($(`#${tree[i].id}`).hasClass('ui-btn-clicked-layer-preview') && !$(`#${tree[i].id} > a > button`).is(":disabled")) {
+					var split = $(`#${id}`).jstree()._model.data[tree[i].id].li_attr.class;
+					var before = split.split(' ');
+					var after = [];
+					for (var j = 0; j < before.length; j++) {
+						if (before[j].length != 'ui-btn-clicked-layer-preview') { after.push(before[j]); }
+					}
+					$(`#${id}`).jstree()._model.data[tree[i].id].li_attr.class = after.join(' ');
+					$(`#${tree[i].id}`).removeClass('ui-btn-clicked-layer-preview');
+					if ($(`li#${tree[i].id}[class*="js-tree-child"]`).length) { // 최하위 자식인 경우
+						CMSC003.GIS.removeLayerById('sar-' + $(`#${tree[i].id}`).attr('value'));
+					}
+				}
+
+			}
+		} else { //미리보기 생성
+			for (var i = 0; i < tree.length; i++) {
+				if (!$(`#${tree[i].id}`).hasClass('ui-btn-clicked-layer-preview') && !$(`#${tree[i].id} > a > button`).is(":disabled")) {
+					$(`#${id}`).jstree().open_node(tree[i]);
+					$(`#${tree[i].id}`).addClass('ui-btn-clicked-layer-preview');
+					$(`#${id}`).jstree()._model.data[tree[i].id].li_attr.class += ' ui-btn-clicked-layer-preview';
+					if ($(`li#${tree[i].id}[class*="js-tree-child"]`).length) { // 최하위 자식인 경우
+						CMSC003.GIS.updateImageLayerTemp('sar-' + $(`#${tree[i].id}`).attr('value'));
+					}
+
+				}
+			}
+		}
+	}
+});
+
+
 // 미리보기 버튼 클릭 - 홍수
 $('.js-search-result-area').on('click', '.ui-btn-preview-flood-image-layer', function(e) {
 	console.log($(this).val());
@@ -1217,6 +1258,49 @@ $('.js-request-result-area').on('click', '.ui-btn-preview-sentinel-image-layer',
 		}
 	}
 });
+
+
+//요청 미리보기 버튼 클릭 - sar  :: 긴급공간정보 08.28
+$('.js-request-result-area').on('click', '.ui-btn-preview-sar-image-layer', function(e) {
+	console.log($(this).val());
+	var id = $(this).data('tree'); // 현재 선택한 레벨의 노드 아이디
+	var tree = $(`#${id}`).jstree().get_json('#' + id, { "flat": true });
+	if (tree.length > 0) {
+		//$(`#${id}`).jstree("load_all");
+		if ($(`#${id}`).hasClass('ui-btn-clicked-layer-preview')) { // 미리보기 제거
+			for (var i = 0; i < tree.length; i++) {
+				if ($(`#${tree[i].id}`).hasClass('ui-btn-clicked-layer-preview') && !$(`#${tree[i].id} > a > button`).is(":disabled")) {
+					var split = $(`#${id}`).jstree()._model.data[tree[i].id].li_attr.class;
+					var before = split.split(' ');
+					var after = [];
+					for (var j = 0; j < before.length; j++) {
+						if (before[j].length != 'ui-btn-clicked-layer-preview') { after.push(before[j]); }
+					}
+					$(`#${id}`).jstree()._model.data[tree[i].id].li_attr.class = after.join(' ');
+					$(`#${tree[i].id}`).removeClass('ui-btn-clicked-layer-preview');
+					if ($(`li#${tree[i].id}[class*="js-tree-child"]`).length) { // 최하위 자식인 경우
+						CMSC003.GIS.removeLayerById($(`#${tree[i].id}`).attr('value'), true);
+					}
+
+				}
+			}
+		} else { //미리보기 생성
+			for (var i = 0; i < tree.length; i++) {
+				if (!$(`#${tree[i].id}`).hasClass('ui-btn-clicked-layer-preview') && !$(`#${tree[i].id} > a > button`).is(":disabled")) {
+					$(`#${id}`).jstree().open_node(tree[i]);
+					$(`#${tree[i].id}`).addClass('ui-btn-clicked-layer-preview');
+					$(`#${id}`).jstree()._model.data[tree[i].id].li_attr.class += ' ui-btn-clicked-layer-preview';
+					if ($(`li#${tree[i].id}[class*="js-tree-child"]`).length) { // 최하위 자식인 경우
+						CMSC003.GIS.updateImageLayerTemp($(`#${tree[i].id}`).attr('value'), true);
+					}
+
+				}
+			}
+		}
+	}
+});
+
+
 
 // 요청 미리보기 버튼 클릭 - 홍수 데이터
 $('.js-request-result-area').on('click', '.ui-btn-preview-flood-image-layer', function(e) {
